@@ -34,7 +34,7 @@ def get_kink_points(points, ref_point):
 
 
 def main():
-    points = get_non_dominated_points(10, n_dim=3, mode="spherical")
+    points = get_non_dominated_points(100, n_dim=3, mode="spherical")
     ref_point = (1, 1, 1)
 
     kink_points = get_kink_points(points, ref_point)
