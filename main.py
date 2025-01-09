@@ -1,4 +1,6 @@
 from state import State
+from visualization import visualize_kink_points
+from point_sampling import get_non_dominated_points
 
 inf = float('inf')
 
@@ -32,11 +34,12 @@ def get_kink_points(points, ref_point):
 
 
 def main():
-    points = [(1, 2, 3), (4, 3, 2), (0, 5, 1), (5, 4, 0)]
-    ref_point = (6, 6, 6)
+    points = get_non_dominated_points(10, n_dim=3, mode="spherical")
+    ref_point = (1, 1, 1)
 
     kink_points = get_kink_points(points, ref_point)
     print(kink_points)
+    visualize_kink_points(points, kink_points, ref_point)
 
 
 if __name__ == "__main__":
