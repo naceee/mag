@@ -18,14 +18,14 @@ def draw_point(point, ref_point, fig):
     ), row=1, col=1)
 
 
-def visualize_kink_points(points, kink_points, ref_point):
+def visualize_kink_points(points, kink_points):
     fig = make_subplots(rows=1, cols=1, specs=[[{'type': 'surface'}]])
 
     # add a scatter plot to the figure
     fig.add_trace(go.Scatter3d(
-        x=[ref_point[0]],
-        y=[ref_point[1]],
-        z=[ref_point[2]],
+        x=[0],
+        y=[0],
+        z=[0],
         mode='markers',
         marker=dict(
             size=8,
@@ -36,7 +36,7 @@ def visualize_kink_points(points, kink_points, ref_point):
     ), row=1, col=1)
 
     for p in points:
-        draw_point(p, ref_point, fig)
+        draw_point(p, (0, 0, 0), fig)
         fig.add_trace(go.Scatter3d(
             x=[p[0]],
             y=[p[1]],
@@ -53,7 +53,7 @@ def visualize_kink_points(points, kink_points, ref_point):
             ),
             name=str(p)
         ), row=1, col=1)
-    eps = ref_point[0] / 100
+    eps = 0.01
 
     for k in kink_points:
         fig.add_trace(go.Scatter3d(
@@ -69,11 +69,11 @@ def visualize_kink_points(points, kink_points, ref_point):
             name=str(k)
         ), row=1, col=1)
 
-    # set axis limits between 0 and ref_point
+    # set axis limits between 0 and 1
     fig.update_layout(scene=dict(
-        xaxis=dict(range=[0, ref_point[0]]),
-        yaxis=dict(range=[0, ref_point[1]]),
-        zaxis=dict(range=[0, ref_point[2]]),
+        xaxis=dict(range=[0, 1]),
+        yaxis=dict(range=[0, 1]),
+        zaxis=dict(range=[0, 1]),
         aspectmode='cube'
     ))
 
