@@ -31,7 +31,7 @@ def spherical_front_2d(distance, num_points):
     vectors = []
     while len(vectors) < num_points:
         phi = random.random() * math.pi / 2
-        vectors.append((distance * math.cos(phi), distance * math.sin(phi)))
+        vectors.append((1 - distance * math.cos(phi), 1 - distance * math.sin(phi)))
 
     return vectors
 
@@ -61,9 +61,9 @@ def spherical_front_3d(distance, num_points):
         alpha = math.acos(z / r1)
         beta = math.atan2(y, x)
 
-        vect = (distance * math.sin(alpha) * math.cos(beta),
-                distance * math.sin(alpha) * math.sin(beta),
-                distance * math.cos(alpha))
+        vect = (1 - distance * math.sin(alpha) * math.cos(beta),
+                1 - distance * math.sin(alpha) * math.sin(beta),
+                1 - distance * math.cos(alpha))
         vectors.append(vect)
 
     return vectors
@@ -98,7 +98,7 @@ def linear_front_4d(distance, num_points):
         y = array[2] - array[1]
         z = array[3] - array[2]
         w = array[4] - array[3]
-        vectors.append((x, y, z, w))
+        vectors.append((1 - x, 1 - y, 1 - z, 1 - w))
 
     return vectors
 
