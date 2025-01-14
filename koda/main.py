@@ -1,4 +1,5 @@
-from state import State
+from state2d import State2d
+from statend import StateNd
 from visualization import visualize_kink_points
 from point_sampling import get_non_dominated_points
 
@@ -6,24 +7,22 @@ inf = float('inf')
 
 
 def get_kink_points(points):
-    points = sorted(points, key=lambda x: x[2])
+    points = sorted(points, key=lambda x: x[2], reverse=True)
 
-    points_state = State([(0, inf), (inf, 0)])
-    kink_candidates = State([(0, 0, 0)])
+    points_state = State2d([(0, inf), (inf, 0)])
+    kink_candidates = State2d([(0, 0, inf)])
     kink_points = []
 
     for point in points:
         removed = kink_candidates.remove_dominated(point)
-        for removed_point in removed:
-            if point[0] > removed_point[0] and point[1] > removed_point[1] and removed_point[2] > point[2]:
-                kink_points.append((removed_point[0], removed_point[1], point[2]))
+        for rem_point in removed:
+            if point[0] > rem_point[0] and point[1] > rem_point[1] and point[2] < rem_point[2]:
+                kink_points.append((rem_point[0], rem_point[1], point[2]))
 
-        idx = points_state.add(point[:2])
-        for i in range(2):
-            new_kink_candidate = (points_state[idx + i][0], points_state[idx - 1 + i][1], point[2])
-            kink_candidates.add(new_kink_candidate)
+        new_candidates = points_state.add_and_get_candidates(point)
+        for new_candidate in new_candidates:
+            kink_candidates.add(new_candidate)
 
-    # add all the remaining kink points to the list
     for point in kink_candidates:
         kink_points.append((point[0], point[1], 0))
 
@@ -33,9 +32,9 @@ def get_kink_points(points):
 def main():
     # points = get_non_dominated_points(6, n_dim=3, mode="linear")
     points = [
-        (0.1, 0.2, 0.3),
-        (0.2, 0.3, 0.1),
-        (0.3, 0.1, 0.2)
+        (1, 2, 3),
+        (2, 3, 1),
+        (3, 1, 2),
     ]
 
     kink_points = get_kink_points(points)

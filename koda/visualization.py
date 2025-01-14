@@ -53,13 +53,15 @@ def visualize_kink_points(points, kink_points):
             ),
             name=str(p)
         ), row=1, col=1)
-    eps = 0.01
+
+    m = max([max([p for p in point]) for point in points])
+    eps = m / 100
 
     for k in kink_points:
         fig.add_trace(go.Scatter3d(
-            x=[k[0] - eps],
-            y=[k[1] - eps],
-            z=[k[2] - eps],
+            x=[k[0] + eps],
+            y=[k[1] + eps],
+            z=[k[2] + eps],
             mode='markers',
             marker=dict(
                 size=10,
@@ -71,9 +73,9 @@ def visualize_kink_points(points, kink_points):
 
     # set axis limits between 0 and 1
     fig.update_layout(scene=dict(
-        xaxis=dict(range=[0, 1]),
-        yaxis=dict(range=[0, 1]),
-        zaxis=dict(range=[0, 1]),
+        xaxis=dict(range=[0, 1.1 * m]),
+        yaxis=dict(range=[0, 1.1 * m]),
+        zaxis=dict(range=[0, 1.1 * m]),
         aspectmode='cube'
     ))
 
