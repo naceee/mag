@@ -7,12 +7,31 @@ from point_sampling import get_non_dominated_points
 inf = float('inf')
 
 
+def distance_to_pareto_front(pareto_front, query_point, kink_points=None):
+    dim = len(query_point)
+    if not any([weakly_dominates(point, query_point, dim) for point in pareto_front]):
+        # query point is not dominated by the pareto front
+        return 0
+
+    if kink_points is None:
+        kink_points = get_kink_points(pareto_front, dim)
+    return dist_to_kink_points(kink_points, query_point, dim)
+
+
+def dist_to_kink_points(kink_points, query_point, dim):
+    min_sq_dist = inf
+    for point in kink_points:
+        sq_dist = sum([(point[i] - query_point[i]) ** 2 for i in range(dim)])
+        min_sq_dist = min(min_sq_dist, sq_dist)
+
+    return math.sqrt(min_sq_dist)
+
+
 def get_kink_points(points, n_dim):
     points = [point for point in points if all([p > 0 for p in point[:n_dim]])]
     points = sorted(points, key=lambda x: x[n_dim - 1], reverse=True)
 
     points_state, kink_candidates = get_initial_states(points, n_dim)
-
     kink_points = []
 
     for point in points:
@@ -89,6 +108,13 @@ def strictly_dominates_except_last(p1, p2, dim):
 
 def weakly_dominates(p1, p2, dim):
     return all([p1[i] >= p2[i] for i in range(dim)])
+
+
+def state_dominates_point(state, point, n_dim):
+    for p in state:
+        if weakly_dominates(p, point, n_dim):
+            return True
+    return False
 
 
 def main():

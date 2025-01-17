@@ -1,5 +1,6 @@
 import math
 import random
+import numpy as np
 
 
 def get_non_dominated_points(n_points, n_dim=3, mode='spherical'):
@@ -127,6 +128,15 @@ def spherical_front_4d(distance, num_points):
             distance * math.sin(alpha) * math.sin(beta) * math.sin(gamma)
         ))
 
+    return vectors
+
+
+def positive_sphere(distance, num_points, dim):
+    """ Returns a list of non-dominated points on the n-D sphere """
+    vectors = np.random.normal(0, 1, (num_points, dim))
+    vectors = np.abs(vectors)
+    vectors = vectors / np.linalg.norm(vectors, axis=1)[: , np.newaxis]
+    vectors = vectors * distance
     return vectors
 
 
