@@ -2,12 +2,17 @@ import math
 import random
 import numpy as np
 
+from utils import weakly_dominates, state_dominates_point
+
 
 def get_non_dominated_points(n_points, n_dim=3, mode='spherical'):
     """ Returns a list of non-dominated points:
      - n_points: number of points
      - n_dim: number of dimensions
      - mode: 'spherical' or 'linear' """
+    if mode == "random":
+        return remove_dominated_points(np.random.random((n_points, n_dim)), n_dim)
+
     if n_dim == 2:
         if mode == 'spherical':
             return spherical_front_2d(1, n_points)
@@ -155,14 +160,37 @@ def next_gaussian_double():
         return result
 
 
+def remove_dominated_points(points, dim):
+    """ Removes dominated points from a list of points """
+    non_dominated_points = []
+    for p1 in points:
+        dominated = False
+        for p2 in points:
+            if weakly_dominates(p2, p1, dim) and not np.array_equal(p1, p2):
+                dominated = True
+                break
+        if not dominated:
+            non_dominated_points.append(tuple(p1))
+    return non_dominated_points
+
+
+def random_dominated_point(points, dim):
+    """ Randomly samples point until it is dominated by at least one point in points """
+    random_point = np.random.random(dim)
+    while not state_dominates_point(points, random_point, dim):
+        random_point = np.random.random(dim)
+    return tuple(random_point)
+
+
 if __name__ == "__main__":
-    ps = positive_sphere(69, 10000, 4)
-    print(ps)
-    # calculate the norm of each vector
-    norms = np.linalg.norm(ps, axis=1)
+    ps = get_non_dominated_points(1000, 3, mode='random')
     import plotly.graph_objects as go
     fig = go.Figure()
-    print(norms)
-    fig.add_trace(go.Scatter3d(x=ps[:, 0], y=ps[:, 1], z=ps[:, 2],
-                               mode='markers', marker=dict(size=1)))
+    fig.add_trace(go.Scatter3d(
+        x=[p[0] for p in ps],
+        y=[p[1] for p in ps],
+        z=[p[2] for p in ps],
+        mode='markers',
+        marker=dict(size=4)
+    ))
     fig.show()
