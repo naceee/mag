@@ -18,7 +18,7 @@ def draw_point(point, ref_point, fig):
     ), row=1, col=1)
 
 
-def visualize_kink_points(points, kink_points):
+def visualize_kink_points(points, kink_points, found_point=None):
     fig = make_subplots(rows=1, cols=1, specs=[[{'type': 'surface'}]])
 
     # add a scatter plot to the figure
@@ -70,6 +70,21 @@ def visualize_kink_points(points, kink_points):
             ),
             name=str(k)
         ), row=1, col=1)
+
+    if found_point is not None:
+        fig.add_trace(go.Scatter3d(
+            x=[found_point[0]],
+            y=[found_point[1]],
+            z=[found_point[2]],
+            mode='markers',
+            marker=dict(
+                size=10,
+                color='rgb(100, 0, 0)',
+                symbol='diamond',
+            ),
+            name=str(found_point)
+        ), row=1, col=1)
+
 
     # set axis limits between 0 and 1
     fig.update_layout(scene=dict(

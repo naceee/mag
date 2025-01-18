@@ -153,3 +153,16 @@ def next_gaussian_double():
         else:
             result = (2 * factor + result) / (2 * factor)
         return result
+
+
+if __name__ == "__main__":
+    ps = positive_sphere(69, 10000, 4)
+    print(ps)
+    # calculate the norm of each vector
+    norms = np.linalg.norm(ps, axis=1)
+    import plotly.graph_objects as go
+    fig = go.Figure()
+    print(norms)
+    fig.add_trace(go.Scatter3d(x=ps[:, 0], y=ps[:, 1], z=ps[:, 2],
+                               mode='markers', marker=dict(size=1)))
+    fig.show()

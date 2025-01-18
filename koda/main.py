@@ -21,7 +21,7 @@ def distance_to_pareto_front(pareto_front, query_point, kink_points=None):
 def dist_to_kink_points(kink_points, query_point, dim):
     min_sq_dist = inf
     for point in kink_points:
-        sq_dist = sum([(point[i] - query_point[i]) ** 2 for i in range(dim)])
+        sq_dist = sum([max(point[i] - query_point[i], 0) ** 2 for i in range(dim)])
         min_sq_dist = min(min_sq_dist, sq_dist)
 
     return math.sqrt(min_sq_dist)
