@@ -3,6 +3,7 @@ import random
 import numpy as np
 
 from utils import weakly_dominates, state_dominates_point
+from visualization import plot_3d_points
 
 
 def get_non_dominated_points(n_points, n_dim=3, mode='spherical'):
@@ -97,12 +98,63 @@ def spherical_front_4d(distance, num_points):
     return vectors
 
 
-def positive_sphere(distance, num_points, dim):
+def random_sphere_points(distance, num_points, dim):
     """ Returns a list of non-dominated points on the n-D sphere """
     vectors = np.random.normal(0, 1, (num_points, dim))
     vectors = np.abs(vectors)
-    vectors = vectors / np.linalg.norm(vectors, axis=1)[: , np.newaxis]
+    vectors = vectors / np.linalg.norm(vectors, axis=1)[:, np.newaxis]
     vectors = vectors * distance
+    return vectors
+
+
+def ordered_sphere_points(max_distance):
+    """ Returns a list of non-dominated points on the n-D sphere """
+    h = max_distance / 2
+    max_angle = math.pi / 2
+
+    phi1 = np.linspace(0, max_angle, math.ceil(max_angle / h))
+
+    vectors = []
+    for p1 in phi1:
+        area = math.cos(p1) * max_angle
+        phi2 = np.linspace(0, max_angle, math.ceil(area / h))
+
+        for p2 in phi2:
+            x = math.cos(p1) * math.cos(p2)
+            y = math.cos(p1) * math.sin(p2)
+            z = math.sin(p1)
+            vectors.append((x, y, z))
+
+    return vectors
+
+def ordered_sphere_points_4d(max_distance):
+    """ Returns a list of non-dominated points on the n-D sphere """
+    h = max_distance / 2
+    max_angle = math.pi / 2
+
+    phi1 = np.linspace(0, max_angle, math.ceil(max_angle / h))
+
+    vectors = []
+    for p1 in phi1:
+        area = math.cos(p1) * max_angle
+        phi2 = np.linspace(0, max_angle, math.ceil(area / h))
+
+        for p2 in phi2:
+            area2 = math.cos(p1) * math.cos(p2) * max_angle
+            area2_ = math.cos(p1) ** 2 * math.cos(p2) * max_angle
+            print(area2, area2_)
+            phi3 = np.linspace(0, max_angle, math.ceil(area2 / h))
+
+            for p3 in phi3:
+                x = math.cos(p1) * math.cos(p2) * math.cos(p3)
+                y = math.cos(p1) * math.cos(p2) * math.sin(p3)
+                z = math.cos(p1) * math.sin(p2)
+                w = math.sin(p1)
+                vectors.append((x, y, z, w))
+                r = math.sqrt(x * x + y * y + z * z + w * w)
+                if abs(r - 1) > 0.00000001:
+                    print("r", r)
+
     return vectors
 
 
@@ -135,7 +187,7 @@ def remove_dominated_points(points, dim):
     return non_dominated_points
 
 
-def random_dominated_point(points, dim):
+def sample_random_dominated_point(points, dim):
     """ Randomly samples point until it is dominated by at least one point in points """
     random_point = np.random.random(dim)
     while not state_dominates_point(points, random_point, dim):
@@ -144,15 +196,7 @@ def random_dominated_point(points, dim):
 
 
 if __name__ == "__main__":
-    ps = linear_front_nd(1, 1000, 3)
+    ps = ordered_sphere_points_4d(0.1)
+    ps = [[p[1], p[2], p[3]] for p in ps ]
+    plot_3d_points(ps)
 
-    import plotly.graph_objects as go
-    fig = go.Figure()
-    fig.add_trace(go.Scatter3d(
-        x=[p[0] for p in ps],
-        y=[p[1] for p in ps],
-        z=[p[2] for p in ps],
-        mode='markers',
-        marker=dict(size=4)
-    ))
-    fig.show()

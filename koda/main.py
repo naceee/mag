@@ -1,4 +1,5 @@
 import math
+import warnings
 
 from sortedcontainers import SortedList
 from visualization import visualize_kink_points
@@ -106,13 +107,46 @@ def remove_dominated(state, new_point, n_dim):
 
 def main():
     # points = [(1, 2, 3), (2, 3, 1), (3, 1, 2)]
-    # points = get_non_dominated_points(8, n_dim=3, mode="linear")
-    points = [(1, 2, 3, 4, 5, 6), (6, 5, 4, 3, 2, 1)]
+    # points = [(1, 2, 3, 4, 5, 6), (6, 5, 4, 3, 2, 1)]
 
-    p = get_kink_points(points, 6)
-    print(p)
+    import plotly.graph_objects as go
 
-    # visualize_kink_points(points, get_kink_points(points, 3))
+    fig = go.Figure()
+    colors = {
+        3: "red",
+        4: "blue",
+        5: "green",
+        6: "orange",
+        7: "purple",
+        8: "black",
+        9: "gray",
+    }
+    k = 30
+    for d in range(3, 8):
+        x = list(range(10, 51, 10))
+        y = []
+        for i in x:
+            points = get_non_dominated_points(i, n_dim=d, mode="linear")
+            print(len(points), end=" ")
+            p = get_kink_points(points, d)
+            y.append(len(p))
+
+        fig.add_trace(go.Scatter(
+            x=x,
+            y=y,
+            mode='lines+markers',
+            marker=dict(size=8, color=colors[d], symbol="circle"),
+            name=f"dim={d}",
+        ))
+        print()
+
+    fig.update_layout(
+        height=500,
+        width=500,
+        plot_bgcolor="white",
+    )
+    fig.show()
+
     # visualize_kink_points(points[:-1], get_kink_points(points[:-1]))
 
 

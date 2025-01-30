@@ -1,4 +1,4 @@
-from point_sampling import positive_sphere, get_non_dominated_points, random_dominated_point
+from point_sampling import random_sphere_points, get_non_dominated_points, sample_random_dominated_point
 import numpy as np
 from main import get_kink_points, dist_to_kink_points
 import warnings
@@ -9,7 +9,7 @@ def test_algorithm(n_points=100, n_tests=10):
     for dim in range(3, 11):
         for test_idx in range(n_tests):
             non_dominated_points = get_non_dominated_points(n_points, dim, mode="random")
-            test_point = random_dominated_point(non_dominated_points, dim)
+            test_point = sample_random_dominated_point(non_dominated_points, dim)
 
             print(f"({dim}.{test_idx})", end=" ")
             test_one_point(non_dominated_points, test_point, dim)
@@ -46,7 +46,7 @@ def sample_point_until_found(points, test_point, max_distance, dim,
                              start_sample_size=1, max_sample_size=1_000_000):
 
     while start_sample_size < max_sample_size:
-        test_points = positive_sphere(max_distance, start_sample_size, dim)
+        test_points = random_sphere_points(max_distance, start_sample_size, dim)
         for point in test_points:
             if not state_dominates_point(points, test_point + point, dim):
                 print(f" \033[92myes\033[0m   | {2*start_sample_size:10d} |")

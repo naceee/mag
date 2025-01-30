@@ -18,6 +18,18 @@ def draw_point(point, ref_point, fig):
     ), row=1, col=1)
 
 
+def plot_3d_points(points):
+    fig = go.Figure()
+    fig.add_trace(go.Scatter3d(
+        x=[p[0] for p in points],
+        y=[p[1] for p in points],
+        z=[p[2] for p in points],
+        mode='markers',
+        marker=dict(size=4)
+    ))
+    fig.show()
+
+
 def visualize_kink_points(points, kink_points, found_point=None):
     fig = make_subplots(rows=1, cols=1, specs=[[{'type': 'surface'}]])
 
