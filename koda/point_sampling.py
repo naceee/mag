@@ -12,24 +12,19 @@ def get_non_dominated_points(n_points, n_dim=3, mode='spherical'):
      - mode: 'spherical' or 'linear' """
     if mode == "random":
         return remove_dominated_points(np.random.random((n_points, n_dim)), n_dim)
-
-    if n_dim == 2:
-        if mode == 'spherical':
+    elif mode == "linear":
+        return linear_front_nd(1, n_points, n_dim)
+    elif mode == "spherical":
+        if n_dim == 2:
             return spherical_front_2d(1, n_points)
-        elif mode == 'linear':
-            return linear_front_2d(1, n_points)
-    if n_dim == 3:
-        if mode == 'spherical':
+        if n_dim == 3:
             return spherical_front_3d(1, n_points)
-        elif mode == 'linear':
-            return linear_front_3d(1, n_points)
-    elif n_dim == 4:
-        if mode == 'spherical':
+        elif n_dim == 4:
             return spherical_front_4d(1, n_points)
-        elif mode == 'linear':
-            return linear_front_4d(1, n_points)
+        else:
+            raise ValueError("Invalid number of dimensions")
     else:
-        raise ValueError("Invalid number of dimensions")
+        raise ValueError("Invalid mode")
 
 
 def spherical_front_2d(distance, num_points):
@@ -38,16 +33,6 @@ def spherical_front_2d(distance, num_points):
     while len(vectors) < num_points:
         phi = random.random() * math.pi / 2
         vectors.append((1 - distance * math.cos(phi), 1 - distance * math.sin(phi)))
-
-    return vectors
-
-
-def linear_front_2d(distance, num_points):
-    """ Returns a list of non-dominated points on the 2D linear front """
-    vectors = []
-    while len(vectors) < num_points:
-        x = random.random()
-        vectors.append((x, 1 - x))
 
     return vectors
 
@@ -75,38 +60,14 @@ def spherical_front_3d(distance, num_points):
     return vectors
 
 
-def linear_front_3d(distance, num_points):
-    """ Returns a list of non-dominated points on the 3D linear front """
-    vectors = []
-    while len(vectors) < num_points:
-        array = [0.0]
-        for _ in range(2):
-            array.append(distance * random.random())
-        array.append(distance)
-        array.sort()
-
-        x = 1 - (array[1] - array[0])
-        y = 1 - (array[2] - array[1])
-        z = 1 - (array[3] - array[2])
-        vectors.append((x, y, z))
-
-    return vectors
-
-
-def linear_front_4d(distance, num_points):
-    """ Returns a list of non-dominated points on the 4D linear front """
-    vectors = []
-    while len(vectors) < num_points:
-        array = [0.0] + [distance * random.random() for _ in range(3)] + [distance]
-        array.sort()
-
-        x = array[1] - array[0]
-        y = array[2] - array[1]
-        z = array[3] - array[2]
-        w = array[4] - array[3]
-        vectors.append((1 - x, 1 - y, 1 - z, 1 - w))
-
-    return vectors
+def linear_front_nd(distance, num_points, dim):
+    array = np.hstack([
+        np.zeros((num_points, 1)),
+        distance * np.random.rand(num_points, dim - 1),
+        distance * np.ones((num_points, 1))])
+    array = np.sort(array, axis=1)
+    vectors = 1 - np.diff(array, axis=1)
+    return [tuple(v) for v in vectors]
 
 
 def spherical_front_4d(distance, num_points):
@@ -183,7 +144,8 @@ def random_dominated_point(points, dim):
 
 
 if __name__ == "__main__":
-    ps = get_non_dominated_points(1000, 3, mode='random')
+    ps = linear_front_nd(1, 1000, 3)
+
     import plotly.graph_objects as go
     fig = go.Figure()
     fig.add_trace(go.Scatter3d(
