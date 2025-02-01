@@ -158,6 +158,33 @@ def ordered_sphere_points_4d(max_distance):
     return vectors
 
 
+def nd_epsilon_net(epsilon, dim, area, vectors):
+    """ Returns a list of non-dominated points on the n-D sphere """
+    phi_space = np.linspace(0, math.pi / 2, math.ceil(area / epsilon))
+    new_vectors = []
+
+    if dim == 2:
+        for phi in phi_space:
+            for vector in vectors:
+                x0 = vector[0] * math.cos(phi)
+                x1 = vector[0] * math.sin(phi)
+                new_vectors.append((x0, x1) + vector[1:])
+        return new_vectors
+
+    for phi in phi_space:
+        new_area = math.cos(phi) * area
+        phi_vectors = []
+        for vector in vectors:
+            x0 = vector[0] * math.cos(phi)
+            x1 = vector[0] * math.sin(phi)
+            phi_vectors.append((x0, x1) + vector[1:])
+        new_vectors += nd_epsilon_net(epsilon, dim - 1, new_area, phi_vectors)
+
+    return new_vectors
+
+
+
+
 def next_gaussian_double():
     factor = 2.0
     while True:
@@ -196,7 +223,10 @@ def sample_random_dominated_point(points, dim):
 
 
 if __name__ == "__main__":
-    ps = ordered_sphere_points_4d(0.1)
-    ps = [[p[1], p[2], p[3]] for p in ps ]
-    plot_3d_points(ps)
+
+    for d in range(2, 8):
+        ps = nd_epsilon_net(0.1, d, math.pi / 2, [(1,)])
+        print(d, len(ps))
+    # ps = [[p[0], p[2], p[3]] for p in ps if 0.47 < p[1] < 0.5]
+    # plot_3d_points(ps)
 
