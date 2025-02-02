@@ -11,17 +11,16 @@ class MyTestCase(unittest.TestCase):
         for d in range(2, 11):
             h = 0.2
             net = epsilon_net(h, d)
+            net = np.array(net)
 
-            pts = random_sphere_points(1, 1000, d)
+            pts = random_sphere_points(1, 10000, d)
 
             # find the min distance for each of the points to the net
             min_dists = []
             for p in pts:
-                min_dist = 1000
-                for n in net:
-                    dist = np.linalg.norm(np.array(p) - np.array(n))
-                    min_dist = min(min_dist, dist)
-                min_dists.append(min_dist)
+                dists = np.linalg.norm(net - p, axis=1)
+                min_dists.append(np.min(dists))
+
             max_min_dist = max(min_dists)
             self.assertLessEqual(max_min_dist, h / 2)
             print(f"Max min dist for {d}D ({len(net)} points): {max_min_dist:.6f}")
