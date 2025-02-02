@@ -158,11 +158,13 @@ def ordered_sphere_points_4d(max_distance):
     return vectors
 
 
-def epsilon_net(epsilon, dim):
+def epsilon_net(radius, epsilon, dim):
     """ Returns a list of non-dominated points on the n-D sphere """
     a = np.pow((dim - 1) * np.pow(epsilon / 2, 2), 1 / 2)
-    epsilon = epsilon ** 2 / (2 * a)
-    return epsilon_net_rec(epsilon, dim, math.pi / 2, [(1,)])
+    epsilon = epsilon ** 2 / (radius * 2 * a)
+    net = epsilon_net_rec(epsilon, dim, math.pi / 2, [(1,)])
+    return [[radius * p for p in point] for point in net]
+
 
 
 def epsilon_net_rec(epsilon, dim, area, vectors):

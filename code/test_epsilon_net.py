@@ -9,11 +9,12 @@ class MyTestCase(unittest.TestCase):
     def test_epsilon_net(self):
 
         for d in range(2, 11):
-            h = 0.2
-            net = epsilon_net(h, d)
+            h = 1
+            r = 10
+            net = epsilon_net(r, h, d)
             net = np.array(net)
 
-            pts = random_sphere_points(1, 10000, d)
+            pts = random_sphere_points(r, 10000, d)
 
             # find the min distance for each of the points to the net
             min_dists = []
