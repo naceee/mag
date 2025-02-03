@@ -160,16 +160,15 @@ def ordered_sphere_points_4d(max_distance):
 
 def epsilon_net(radius, epsilon, dim):
     """ Returns a list of non-dominated points on the n-D sphere """
-    a = np.pow((dim - 1) * np.pow(epsilon / 2, 2), 1 / 2)
-    epsilon = epsilon ** 2 / (radius * 2 * a)
-    net = epsilon_net_rec(epsilon, dim, math.pi / 2, [(1,)])
+    dim_factor = np.power((dim - 1) * np.power(epsilon / 2, 2), 1 / 2)
+    h = epsilon ** 2 / (radius * dim_factor)
+    net = epsilon_net_rec(h, dim, math.pi / 2, [(1,)])
     return [[radius * p for p in point] for point in net]
 
 
-
-def epsilon_net_rec(epsilon, dim, area, vectors):
+def epsilon_net_rec(h, dim, area, vectors):
     """ Returns a list of non-dominated points on the n-D sphere """
-    phi_space = np.linspace(0, math.pi / 2, math.ceil(area / epsilon + 1))
+    phi_space = np.linspace(0, math.pi / 2, math.ceil(area / h + 1))
     new_vectors = []
 
     if dim == 2:
@@ -187,7 +186,7 @@ def epsilon_net_rec(epsilon, dim, area, vectors):
             x0 = vector[0] * math.cos(phi)
             x1 = vector[0] * math.sin(phi)
             phi_vectors.append((x0, x1) + vector[1:])
-        new_vectors += epsilon_net_rec(epsilon, dim - 1, new_area, phi_vectors)
+        new_vectors += epsilon_net_rec(h, dim - 1, new_area, phi_vectors)
 
     return new_vectors
 

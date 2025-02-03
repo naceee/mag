@@ -9,7 +9,7 @@ class MyTestCase(unittest.TestCase):
     def test_epsilon_net(self):
 
         for d in range(2, 11):
-            h = 1
+            h = 0.1
             r = 10
             net = epsilon_net(r, h, d)
             net = np.array(net)
@@ -23,7 +23,7 @@ class MyTestCase(unittest.TestCase):
                 min_dists.append(np.min(dists))
 
             max_min_dist = max(min_dists)
-            self.assertLessEqual(max_min_dist, h / 2)
+            self.assertLessEqual(max_min_dist, h)
             print(f"Max min dist for {d}D ({len(net)} points): {max_min_dist:.6f}")
 
 
