@@ -22,6 +22,17 @@ def add_axes(fig):
         showticklabels=False,
     )
 
+def update_layout(fig, x_range, y_range, height=350, width=350):
+    fig.update_layout(
+        xaxis=dict(range=x_range),
+        yaxis=dict(range=y_range),
+        height=height,
+        width=width,
+        plot_bgcolor="white",
+        margin=dict(t=40, b=50, l=50, r=40),
+    )
+
+
 
 def pareto_front(add_kink_points=True, add_cones=False):
     points = [[1, 9], [2, 8], [3, 5], [6, 4], [8, 2], [10, 1]]
@@ -171,13 +182,7 @@ def cone_distance():
     )
 
     # update the layout and axes
-    fig.update_layout(
-        xaxis=dict(range=[-m, m]),
-        yaxis=dict(range=[-m, m]),
-        height=500,
-        width=500,
-        plot_bgcolor="white",
-    )
+    update_layout(fig, [-m, m], [-m, m])
     add_axes(fig)
 
     fig.show()
