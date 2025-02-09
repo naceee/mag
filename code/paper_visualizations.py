@@ -5,6 +5,24 @@ from plotly.subplots import make_subplots
 from point_sampling import epsilon_net
 
 
+def add_axes(fig):
+    fig.update_xaxes(
+        showline=True,
+        linewidth=1,
+        linecolor='black',
+        title_text="Kriterij 1",
+        showticklabels=False,
+    )
+
+    fig.update_yaxes(
+        showline=True,
+        linewidth=1,
+        linecolor='black',
+        title_text="Kriterij 2",
+        showticklabels=False,
+    )
+
+
 def pareto_front(add_kink_points=True, add_cones=False):
     points = [[1, 9], [2, 8], [3, 5], [6, 4], [8, 2], [10, 1]]
     m = max([max([p for p in point]) for point in points])
@@ -58,22 +76,7 @@ def pareto_front(add_kink_points=True, add_cones=False):
         width=500,
         plot_bgcolor="white",
     )
-    x_name = "Kriterij 1"
-    fig.update_xaxes(
-        showline=True,
-        linewidth=1,
-        linecolor='black',
-        title_text=x_name,
-        showticklabels=False,
-    )
-
-    fig.update_yaxes(
-        showline=True,
-        linewidth=1,
-        linecolor='black',
-        title_text="Kriterij 2",
-        showticklabels=False,
-    )
+    add_axes(fig)
 
     fig.show()
     if not add_kink_points:
@@ -82,6 +85,103 @@ def pareto_front(add_kink_points=True, add_cones=False):
         export_to_pdf(fig, "pareto_front_with_kink_points")
     else:
         export_to_pdf(fig, "pareto_front_with_cones")
+
+def cone_distance():
+    q_points = [[-3, 2], [-1, -2], [4, -1]]
+    m = 5
+
+    fig = go.Figure()
+
+    # plot the points
+    for i, (px, py) in enumerate(q_points):
+        # add the name of each point to the plot
+        fig.add_annotation(
+            x=px,
+            y=py,
+            text=f"$q_{i + 1}$",
+            showarrow=False,
+            xanchor="left",
+            yanchor="top",
+            xshift=5,
+            yshift=-5,
+        )
+        fig.add_annotation(
+            x=px + (max(px, 0) - px) / 3,
+            y=py + (max(py, 0) - py) / 3,
+            text=f"$d(q_{i + 1}, s(v))$",
+            font=dict(color="red"),
+            showarrow=False,
+            xanchor="left",
+            yanchor="bottom",
+            xshift=3,
+            yshift=1,
+        )
+
+        # add the line between point and cone:
+        fig.add_trace(go.Scatter(
+            x=[px, max(px, 0)],
+            y=[py, max(py, 0)],
+            mode='lines',
+            line=dict(width=2, color="red"),
+            showlegend=False,
+        ))
+        # add the point
+        fig.add_trace(go.Scatter(
+            x=[px],
+            y=[py],
+            mode='markers',
+            marker=dict(size=8, color="black", symbol="circle"),
+            showlegend=False,
+        ))
+
+    fig.add_trace(go.Scatter(
+        x=[0, m + 1, m + 1, 0, 0],
+        y=[0, 0, m + 1, m + 1, 0],
+        fill='toself',
+        mode='none',
+        fillcolor="grey",
+        opacity=0.5,
+        showlegend=False,
+    ))
+
+    fig.add_trace(go.Scatter(
+        x=[0],
+        y=[0],
+        mode='markers',
+        marker=dict(size=6, color="black", symbol="square"),
+        showlegend=False,
+    ))
+
+    fig.add_annotation(
+        x=0,
+        y=0,
+        text="$v$",
+        showarrow=False,
+        xanchor="left",
+        yanchor="top",
+        xshift=5,
+        yshift=-5,
+    )
+    fig.add_annotation(
+        x=2.5,
+        y=2.5,
+        text="$s(v)$",
+        font=dict(color="black", size=14),
+        showarrow=False,
+    )
+
+    # update the layout and axes
+    fig.update_layout(
+        xaxis=dict(range=[-m, m]),
+        yaxis=dict(range=[-m, m]),
+        height=500,
+        width=500,
+        plot_bgcolor="white",
+    )
+    add_axes(fig)
+
+    fig.show()
+    export_to_pdf(fig, "cone_distance")
 
 
 def non_dominated_points():
@@ -115,22 +215,7 @@ def non_dominated_points():
         width=500,
         plot_bgcolor="white",
     )
-    x_name = "Kriterij 1"
-    fig.update_xaxes(
-        showline=False,
-        linewidth=1,
-        linecolor='black',
-        title_text=x_name,
-        showticklabels=False,
-    )
-
-    fig.update_yaxes(
-        showline=False,
-        linewidth=1,
-        linecolor='black',
-        title_text="Kriterij 2",
-        showticklabels=False,
-    )
+    add_axes(fig)
 
     # add arrow on x-axis
     arrow_settings = dict(
@@ -340,9 +425,10 @@ def export_to_pdf(fig, name):
 
 
 if __name__ == "__main__":
-    pareto_front(add_kink_points=False)
-    pareto_front(add_cones=False)
-    pareto_front(add_cones=True)
+    # pareto_front(add_kink_points=False)
+    # pareto_front(add_cones=False)
+    # pareto_front(add_cones=True)
+    cone_distance()
     # non_dominated_points()
     # dominated_area()
     # test_visualization()
