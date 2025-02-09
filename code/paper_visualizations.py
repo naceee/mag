@@ -1,13 +1,11 @@
 import math
-
 import plotly.graph_objects as go
 from plotly.subplots import make_subplots
-import time
 
 from point_sampling import epsilon_net
 
 
-def pareto_front():
+def pareto_front(add_kink_points=True, add_cones=False):
     points = [[1, 9], [2, 8], [3, 5], [6, 4], [8, 2], [10, 1]]
     m = max([max([p for p in point]) for point in points])
     points = [[0, m + 1]] + points + [[m + 1, 0]]
@@ -33,15 +31,25 @@ def pareto_front():
         marker=dict(size=8, color="black", symbol="circle"),
         showlegend=False,
     ))
-
-    fig.add_trace(go.Scatter(
-        x=[p[0] for p in kink_points],
-        y=[p[1] for p in kink_points],
-        mode='markers',
-        marker=dict(size=8, color="blue", symbol="square"),
-        showlegend=False,
-    ))
-
+    if add_kink_points:
+        fig.add_trace(go.Scatter(
+            x=[p[0] for p in kink_points],
+            y=[p[1] for p in kink_points],
+            mode='markers',
+            marker=dict(size=8, color="blue", symbol="square"),
+            showlegend=False,
+        ))
+    if add_cones:
+        for kp in kink_points:
+            fig.add_trace(go.Scatter(
+                x=[kp[0], m + 1, m + 1, kp[0], kp[0]],
+                y=[kp[1], kp[1], m + 1, m + 1, kp[1]],
+                fill='toself',
+                mode='none',
+                fillcolor="grey",
+                opacity=0.5,
+                showlegend=False,
+            ))
     # update the layout and axes
     fig.update_layout(
         xaxis=dict(range=[0, m + 1]),
@@ -50,7 +58,7 @@ def pareto_front():
         width=500,
         plot_bgcolor="white",
     )
-    x_name = "Objective 1"
+    x_name = "Kriterij 1"
     fig.update_xaxes(
         showline=True,
         linewidth=1,
@@ -63,12 +71,17 @@ def pareto_front():
         showline=True,
         linewidth=1,
         linecolor='black',
-        title_text="Objective 2",
+        title_text="Kriterij 2",
         showticklabels=False,
     )
 
     fig.show()
-    export_to_pdf(fig, "pareto_front")
+    if not add_kink_points:
+        export_to_pdf(fig, "pareto_front")
+    elif not add_cones:
+        export_to_pdf(fig, "pareto_front_with_kink_points")
+    else:
+        export_to_pdf(fig, "pareto_front_with_cones")
 
 
 def non_dominated_points():
@@ -102,7 +115,7 @@ def non_dominated_points():
         width=500,
         plot_bgcolor="white",
     )
-    x_name = "Objective 1"
+    x_name = "Kriterij 1"
     fig.update_xaxes(
         showline=False,
         linewidth=1,
@@ -115,7 +128,7 @@ def non_dominated_points():
         showline=False,
         linewidth=1,
         linecolor='black',
-        title_text="Objective 2",
+        title_text="Kriterij 2",
         showticklabels=False,
     )
 
@@ -321,13 +334,15 @@ def test_visualization():
 
 
 def export_to_pdf(fig, name):
+    print(f"Exporting {name} to PDF...", end="")
     fig.write_image(f"../images/{name}.pdf")
-    time.sleep(3)
-    fig.write_image(f"../images/{name}.pdf")
+    print("done")
 
 
 if __name__ == "__main__":
-    # pareto_front()
+    pareto_front(add_kink_points=False)
+    pareto_front(add_cones=False)
+    pareto_front(add_cones=True)
     # non_dominated_points()
     # dominated_area()
-    test_visualization()
+    # test_visualization()
