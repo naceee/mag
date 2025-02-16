@@ -1,6 +1,7 @@
 import plotly.graph_objects as go
 import math
 
+from point_sampling import remove_dominated_points
 from main import get_kink_points
 
 def transform(p, alpha):
@@ -9,7 +10,7 @@ def transform(p, alpha):
     return x, y
 
 
-def get_plot_elements(points, alpha=-math.pi/8, m=None):
+def get_plot_elements_3d(points, alpha=-math.pi / 8, m=None):
     kink_points = get_kink_points([tuple(p) for p in points], 3)
 
     plot_elements = {
@@ -25,12 +26,22 @@ def get_plot_elements(points, alpha=-math.pi/8, m=None):
         plot_elements["points"].append(t_point)
 
         point_kink_points = [p for p in kink_points if any([point[i] == p[i] for i in range(3)])]
+        point_points = [p for p in points if any([point[i] == p[i] for i in range(3)])]
 
         for i in range(3):
             neighbouring_kink_points = [p for p in point_kink_points if p[i] != point[i]]
+            neighbouring_points = [p for p in point_points if p[i] != point[i]]
 
             line_end_point = point[:]
-            line_end_point[i] = min(kp[i] for kp in neighbouring_kink_points)
+            line_end_i_kink = min(kp[i] for kp in neighbouring_kink_points)
+            if len(neighbouring_points) > 0:
+                line_end_i_points = max(kp[i] for kp in neighbouring_points)
+                if line_end_i_points < line_end_point[i]:
+                    line_end_point[i] = max(line_end_i_kink, line_end_i_points)
+                else:
+                    line_end_point[i] = line_end_i_kink
+            else:
+                line_end_point[i] = line_end_i_kink
             t_line_end_point = transform(line_end_point, alpha)
 
             plot_elements["other_points"].append(t_line_end_point)
@@ -57,66 +68,56 @@ def get_plot_elements(points, alpha=-math.pi/8, m=None):
 
     return plot_elements
 
+def get_plot_elements_2d(points, m=None):
+    points = sorted(points, key=lambda p: p[0])
+    points = [p[:2] for p in points]
+    if m is None:
+        m = max(max(p) for p in points) + 1
+    points2 = [[0, m]] + points + [[m, 0]]
+    print(points2)
+    kink_points = [(p1[0], p2[1]) for (p1, p2) in zip(points2, points2[1:])]
 
-def plotly_plot(points, alpha=-math.pi / 8):
-    plot_elements = get_plot_elements(points, alpha)
+    plot_elements = {
+        "points": points,
+        "axes": [(0, 0, m, 0), (0, 0, 0, m)],
+        "kink_points": kink_points,
+        "other_points": [],
+        "lines": []
+    }
 
-    fig = go.Figure()
-    all_points = plot_elements["points"] + plot_elements["other_points"] + plot_elements["kink_points"]
-    for point in all_points:
-        fig.add_trace(go.Scatter(
-            x=[point[0]],
-            y=[point[1]],
-            mode="markers",
-            marker=dict(color="black"),
-            showlegend=False,
-        ))
+    for i, p in enumerate(points):
+        plot_elements["lines"].append(kink_points[i] + tuple(p))
+        plot_elements["lines"].append(tuple(p) + kink_points[i+1])
 
-    for (x1, y1, x2, y2) in plot_elements["lines"]:
-        fig.add_trace(go.Scatter(
-            x=[x1, x2],
-            y=[y1, y2],
-            mode="lines",
-            line=dict(color="black"),
-            showlegend=False,
-        ))
-
-    for (x1, y1, x2, y2) in plot_elements["axes"]:
-        fig.add_trace(go.Scatter(
-            x=[x1, x2],
-            y=[y1, y2],
-            mode="lines",
-            line=dict(color="gray"),
-            showlegend=False,
-        ))
-
-    fig.update_layout(
-        plot_bgcolor='white',
-        paper_bgcolor='white',
-        autosize=True,
-    )
-
-    fig.update_xaxes(
-        showgrid=False,
-        zeroline=False,
-        showticklabels=False,
-    )
-    fig.update_yaxes(
-        showgrid=False,
-        zeroline=False,
-        showticklabels=False,
-        scaleanchor="x",
-        scaleratio=1,
-    )
-
-    fig.show()
+    return plot_elements
 
 
+def get_sweep_plots_2d(points, m=None):
+    for i, _ in enumerate(points):
+        f_name = f"../tikz_plots/sweep_{i + 1}.tex"
+        print(m)
+        plot_elements = get_plot_elements_2d(remove_dominated_points(points[:i + 1], 2), m)
+        print(plot_elements)
+        s = tikz_plot(plot_elements, axes_positions=("below", "left"), point_pos="above right")
+
+        # save the string s in file f_name
+        with open(f_name, "w") as f:
+            f.write(s)
+
+def get_images_3d(points):
+    elements = get_plot_elements_3d(points)
+    s1 = tikz_plot(elements, show_kink=False)
+    s2 = tikz_plot(elements, show_kink=True)
+
+    with open("../tikz_plots/points3d.tex", "w") as f:
+        f.write(s1)
+    with open("../tikz_plots/points3d_with_kink.tex", "w") as f:
+        f.write(s2)
 
 
+def tikz_plot(plot_elements, point_color="black", kink_color="gray", show_kink=True,
+              axes_positions=("below", "below", "right"), point_pos="below left"):
 
-def tikz_plot(points, alpha=-math.pi / 8, point_color="black", kink_color="gray", show_kink=True):
-    plot_elements = get_plot_elements(points, alpha)
     s = "\\begin{tikzpicture}\n"
 
     s += "    % lines:\n"
@@ -126,27 +127,25 @@ def tikz_plot(points, alpha=-math.pi / 8, point_color="black", kink_color="gray"
     s += "    % points:\n"
     for i, (x, y) in enumerate(plot_elements["points"]):
         s += (f"    \\fill[{point_color}] ({x},{y}) circle (2pt) "
-              f"node[below left] {{\\( p_{{{i+1}}} \\)}};\n")
+              f"node[{point_pos}] {{\\( p^{{{i+1}}} \\)}};\n")
 
     if show_kink:
         s += "    % kink points:\n"
         for i, (x, y) in enumerate(plot_elements["kink_points"]):
             s += (f"    \\fill[{kink_color}] ({x},{y}) circle (2pt) "
-                  f"node[above left] {{\\( v_{{{i+1}}} \\)}};\n")
+                  f"node[above left] {{\\( v^{{{i+1}}} \\)}};\n")
 
     s += "    % axes:\n"
-    for i, ((x1, y1, x2, y2), position) in enumerate(zip(plot_elements["axes"], ["below", "below", "right"])):
+    for i, ((x1, y1, x2, y2), position) in enumerate(zip(plot_elements["axes"], axes_positions)):
         s += (f"    \\draw[->] ({round(x1, 4)},{round(y1, 4)}) -- ({round(x2, 4)},{round(y2, 4)}) "
               f"node[midway, {position}] {{\\( f_{i+1} \\)}};\n")
 
     s += "\\end{tikzpicture}"
-    print(s)
-
-
-
+    # print(s)
+    return s
 
 
 if __name__ == '__main__':
-    pts = [[2, 3, 5], [4, 1, 4], [3, 2, 2], [5, 5, 1]]
-    # plotly_plot(pts)
-    tikz_plot(pts, show_kink=True)
+    pts = [[1, 3, 4], [3, 1, 3], [4, 3, 2], [2, 4, 1]]
+    get_images_3d(pts)
+    get_sweep_plots_2d(pts, m=5)

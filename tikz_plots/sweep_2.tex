@@ -1,0 +1,13 @@
+\begin{tikzpicture}
+    % lines:
+    \draw (0,3) -- (4,3);
+    \draw (4,3) -- (4,0);
+    % points:
+    \fill[black] (4,3) circle (2pt) node[above right] {\( p^{1} \)};
+    % kink points:
+    \fill[gray] (0,3) circle (2pt) node[above left] {\( v^{1} \)};
+    \fill[gray] (4,0) circle (2pt) node[above left] {\( v^{2} \)};
+    % axes:
+    \draw[->] (0,0) -- (5,0) node[midway, below] {\( f_1 \)};
+    \draw[->] (0,0) -- (0,5) node[midway, left] {\( f_2 \)};
+\end{tikzpicture}
