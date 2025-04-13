@@ -1,4 +1,4 @@
-from point_sampling import random_sphere_points, get_non_dominated_points, sample_random_dominated_point
+from point_sampling import spherical_front, get_non_dominated_points, sample_random_dominated_point
 import numpy as np
 from main import get_kink_points, dist_to_kink_points
 import warnings
@@ -46,7 +46,7 @@ def sample_point_until_found(points, test_point, max_distance, dim,
                              start_sample_size=1, max_sample_size=1_000_000, should_find=True):
 
     while start_sample_size < max_sample_size:
-        test_points = random_sphere_points(max_distance, start_sample_size, dim)
+        test_points = spherical_front(max_distance, start_sample_size, dim)
         for point in test_points:
             if not state_dominates_point(points, test_point + point, dim):
                 if should_find:
