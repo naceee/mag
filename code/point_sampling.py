@@ -32,7 +32,7 @@ def linear_front(distance, num_points, dim):
         distance * np.random.rand(num_points, dim - 1),
         distance * np.ones((num_points, 1))])
     array = np.sort(array, axis=1)
-    vectors = 1 - np.diff(array, axis=1)
+    vectors = np.diff(array, axis=1)
     return vectors
 
 
