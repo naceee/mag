@@ -1,7 +1,7 @@
 import plotly.graph_objects as go
 import math
 
-from point_sampling import remove_dominated_points
+from point_sampling import remove_dominated_points, get_non_dominated_points
 from main import get_kink_points
 
 def transform(p, alpha):
@@ -114,6 +114,54 @@ def get_images_3d(points):
     with open("../tikz_plots/points3d_with_kink.tex", "w") as f:
         f.write(s2)
 
+def get_front_tikz_elements_2d(points):
+    m = 4
+    plot_elements = {
+        "points": [],
+        "unnamed_points": points,
+        "axes": [(0, 0, m, 0), (0, 0, 0, m)],
+        "kink_points": [],
+        "other_points": [],
+        "lines": []
+    }
+    return plot_elements
+
+
+def get_front_tikz_elements_3d(points):
+    m = 3.5
+    alpha = -math.pi / 8
+    ax_start = transform((0, 0, 0), alpha)
+    plot_elements = {
+        "points": [],
+        "unnamed_points": [transform(p, alpha) for p in points],
+        "axes": [ax_start + transform((m, 0, 0), alpha),
+                 ax_start + transform((0, m, 0), alpha),
+                 ax_start + transform((0, 0, m), alpha)],
+        "kink_points": [],
+        "other_points": [],
+        "lines": []
+    }
+    return plot_elements
+
+
+def get_front_visualizations():
+    for front in ["spherical", "linear"]:
+        points = get_non_dominated_points(20, 2, front, distance=3)
+        elements = get_front_tikz_elements_2d(points)
+        s2d = tikz_plot(elements, show_kink=False, axes_positions=("below", "left"))
+
+        with open(f"../tikz_plots/front_{front}_2d.tex", "w") as f:
+            f.write(s2d)
+
+        points = get_non_dominated_points(200, 3, front, distance=3)
+        elements = get_front_tikz_elements_3d(points)
+        s3d = tikz_plot(elements, show_kink=False)
+
+        with open(f"../tikz_plots/front_{front}_3d.tex", "w") as f:
+            f.write(s3d)
+
+
+
 
 def tikz_plot(plot_elements, point_color="black", kink_color="gray", show_kink=True,
               axes_positions=("below", "below", "right"), point_pos="below left"):
@@ -129,11 +177,15 @@ def tikz_plot(plot_elements, point_color="black", kink_color="gray", show_kink=T
         s += (f"    \\fill[{point_color}] ({x},{y}) circle (2pt) "
               f"node[{point_pos}] {{\\( p^{{{i+1}}} \\)}};\n")
 
+    for i, (x, y) in enumerate(plot_elements.get("unnamed_points", [])):
+        s += (f"    \\fill[{point_color}] ({x},{y}) circle (2pt) "
+              f"node[{point_pos}] {{\\(  \\)}};\n")
+
     if show_kink:
         s += "    % kink points:\n"
         for i, (x, y) in enumerate(plot_elements["kink_points"]):
             s += (f"    \\fill[{kink_color}] ({x},{y}) circle (2pt) "
-                  f"node[above left] {{\\( v^{{{i+1}}} \\)}};\n")
+                  f"node[above left] {{\\( v^{{{i + 1}}} \\)}};\n")
 
     s += "    % axes:\n"
     for i, ((x1, y1, x2, y2), position) in enumerate(zip(plot_elements["axes"], axes_positions)):
@@ -146,6 +198,7 @@ def tikz_plot(plot_elements, point_color="black", kink_color="gray", show_kink=T
 
 
 if __name__ == '__main__':
-    pts = [[1, 3, 4], [3, 1, 3], [4, 3, 2], [2, 4, 1]]
-    get_images_3d(pts)
-    get_sweep_plots_2d(pts, m=5)
+    # pts = [[1, 3, 4], [3, 1, 3], [4, 3, 2], [2, 4, 1]]
+    # get_images_3d(pts)
+    # get_sweep_plots_2d(pts, m=5)
+    get_front_visualizations()
