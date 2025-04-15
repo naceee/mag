@@ -1,7 +1,7 @@
 import plotly.graph_objects as go
 import math
 
-from point_sampling import remove_dominated_points, get_non_dominated_points
+from point_sampling import remove_dominated_points, get_non_dominated_points, epsilon_net
 from main import get_kink_points
 
 def transform(p, alpha):
@@ -161,6 +161,21 @@ def get_front_visualizations():
             f.write(s3d)
 
 
+def get_epsilon_net_visualizations():
+    points = epsilon_net(3, 0.2, 2)
+    elements = get_front_tikz_elements_2d(points)
+    s2d = tikz_plot(elements, show_kink=False, axes_positions=("below", "left"))
+
+    with open(f"../tikz_plots/epsilon_net_2d.tex", "w") as f:
+        f.write(s2d)
+
+    points = epsilon_net(3, 0.2, 3)
+    elements = get_front_tikz_elements_3d(points)
+    s3d = tikz_plot(elements, show_kink=False)
+    with open(f"../tikz_plots/epsilon_net_3d.tex", "w") as f:
+        f.write(s3d)
+
+
 
 
 def tikz_plot(plot_elements, point_color="black", kink_color="gray", show_kink=True,
@@ -201,4 +216,5 @@ if __name__ == '__main__':
     # pts = [[1, 3, 4], [3, 1, 3], [4, 3, 2], [2, 4, 1]]
     # get_images_3d(pts)
     # get_sweep_plots_2d(pts, m=5)
-    get_front_visualizations()
+    # get_front_visualizations()
+    get_epsilon_net_visualizations()
