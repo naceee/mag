@@ -7,15 +7,16 @@ from main import get_kink_points, dist_to_kink_points
 
 
 def test_all():
-    dims = [3, 4, 5, 6, 7, 8, 9, 10]
-    front_types = ["linear"]
-    time_limit = 10
+    dims = [3, 4, 5, 6]
+    front_types = ["linear", "spherical"]
+    time_limit = 100
     n_repeats = 10
 
     for dim in dims:
         for front_type in front_types:
-            print(f"Testing {dim}-dim {front_type} front")
-            test_algorithm(dim, front_type, m=1, n_repeats=n_repeats, time_limit=time_limit)
+            for m in [1, 10, 100]:
+                print(f"Testing {dim}-dim {front_type} front m={m}")
+                test_algorithm(dim, front_type, m=m, n_repeats=n_repeats, time_limit=time_limit)
 
 
 def test_algorithm(dim, front_type, m=1, n_repeats=10, time_limit=1):
