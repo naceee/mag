@@ -1,5 +1,6 @@
 import plotly.graph_objects as go
 import math
+import pandas as pd
 
 from point_sampling import remove_dominated_points, get_non_dominated_points, epsilon_net
 from main import get_kink_points
@@ -147,6 +148,9 @@ def get_front_tikz_elements_3d(points):
 def get_front_visualizations():
     for front in ["spherical", "linear"]:
         points = get_non_dominated_points(20, 2, front, distance=3)
+        points_df = pd.DataFrame(points, columns=["x", "y"])
+        points_df.to_csv(f"../csv/points_{front}_2D.csv", index=False)
+
         elements = get_front_tikz_elements_2d(points)
         s2d = tikz_plot(elements, show_kink=False, axes_positions=("below", "left"))
 
@@ -154,6 +158,8 @@ def get_front_visualizations():
             f.write(s2d)
 
         points = get_non_dominated_points(200, 3, front, distance=3)
+        points_df = pd.DataFrame(points, columns=["x", "y", "z"])
+        points_df.to_csv(f"../csv/points_{front}_3D.csv", index=False)
         elements = get_front_tikz_elements_3d(points)
         s3d = tikz_plot(elements, show_kink=False)
 
@@ -163,6 +169,9 @@ def get_front_visualizations():
 
 def get_epsilon_net_visualizations():
     points = epsilon_net(3, 0.2, 2)
+    points_df = pd.DataFrame(points, columns=["x", "y"])
+    points_df.to_csv(f"../csv/epsilon_net_2D.csv", index=False)
+
     elements = get_front_tikz_elements_2d(points)
     s2d = tikz_plot(elements, show_kink=False, axes_positions=("below", "left"))
 
@@ -170,6 +179,9 @@ def get_epsilon_net_visualizations():
         f.write(s2d)
 
     points = epsilon_net(3, 0.2, 3)
+    points_df = pd.DataFrame(points, columns=["x", "y", "z"])
+    points_df.to_csv(f"../csv/epsilon_net_3D.csv", index=False)
+
     elements = get_front_tikz_elements_3d(points)
     s3d = tikz_plot(elements, show_kink=False)
     with open(f"../tikz_plots/epsilon_net_3d.tex", "w") as f:
