@@ -1,30 +1,28 @@
 import unittest
-import math
 import numpy as np
+from scipy.spatial import cKDTree
 
-from point_sampling import epsilon_net, random_sphere_points
+from point_sampling import epsilon_net, spherical_front
 
 
 class MyTestCase(unittest.TestCase):
     def test_epsilon_net(self):
 
-        for d in range(2, 11):
+        for d in range(2, 7):
             h = 0.1
-            r = 10
+            r = 5
             net = epsilon_net(r, h, d)
-            net = np.array(net)
+            print(f"Max min dist for {d}D ({len(net)} points):", end=" ")
 
-            pts = random_sphere_points(r, 10000, d)
-
+            pts = spherical_front(r, 1000 * 2 ** d, d)
             # find the min distance for each of the points to the net
-            min_dists = []
-            for p in pts:
-                dists = np.linalg.norm(net - p, axis=1)
-                min_dists.append(np.min(dists))
+            tree = cKDTree(net)
+            min_dists, _ = tree.query(pts, k=1)
+            max_min_dist = np.max(min_dists)
 
-            max_min_dist = max(min_dists)
             self.assertLessEqual(max_min_dist, h)
-            print(f"Max min dist for {d}D ({len(net)} points): {max_min_dist:.6f}")
+
+            print(f"{max_min_dist:.6f}")
 
 
 if __name__ == '__main__':

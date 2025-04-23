@@ -1,5 +1,6 @@
 import math
 import numpy as np
+from joblib import Parallel, delayed
 
 from utils import weakly_dominates, state_dominates_point
 
@@ -49,32 +50,28 @@ def epsilon_net(radius, epsilon, dim):
     """ Returns a list of non-dominated points on the n-D sphere """
     dim_factor = np.power((dim - 1) * np.power(epsilon / 2, 2), 1 / 2)
     h = epsilon ** 2 / (radius * dim_factor)
-    net = epsilon_net_rec(h, dim, math.pi / 2, [(1,)])
+    net = epsilon_net_rec(h, dim, np.pi / 2, np.array([[1.0]]))
     return [[radius * p for p in point] for point in net]
 
 
 def epsilon_net_rec(h, dim, area, vectors):
     """ Returns a list of non-dominated points on the n-D sphere """
-    phi_space = np.linspace(0, math.pi / 2, math.ceil(area / h + 1))
-    new_vectors = []
+    phi_space = np.linspace(0, np.pi / 2, math.ceil(area / h + 1))
 
     if dim == 2:
-        for phi in phi_space:
-            for vector in vectors:
-                x0 = vector[0] * math.cos(phi)
-                x1 = vector[0] * math.sin(phi)
-                new_vectors.append((x0, x1) + vector[1:])
-        return new_vectors
+        new_vectors = [get_new_vectors(vectors, phi) for phi in phi_space]
+        return np.vstack(new_vectors)
 
-    for phi in phi_space:
-        new_area = math.cos(phi) * area
-        phi_vectors = []
-        for vector in vectors:
-            x0 = vector[0] * math.cos(phi)
-            x1 = vector[0] * math.sin(phi)
-            phi_vectors.append((x0, x1) + vector[1:])
-        new_vectors += epsilon_net_rec(h, dim - 1, new_area, phi_vectors)
+    new_vectors = [epsilon_net_rec(h, dim - 1, np.cos(phi) * area, get_new_vectors(vectors, phi))
+                   for phi in phi_space]
+    return np.vstack(new_vectors)
 
+
+def get_new_vectors(vectors, phi):
+    x0 = vectors[:, 0] * np.cos(phi)
+    x1 = vectors[:, 0] * np.sin(phi)
+    rest = vectors[:, 1:]
+    new_vectors = np.column_stack((x0, x1, rest))
     return new_vectors
 
 
