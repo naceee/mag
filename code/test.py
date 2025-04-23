@@ -1,12 +1,12 @@
-from point_sampling import spherical_front, get_non_dominated_points, sample_random_dominated_point
+from point_sampling import (spherical_front, get_non_dominated_points,
+                            sample_random_dominated_point, epsilon_net)
 import numpy as np
 from main import get_kink_points, dist_to_kink_points
-import warnings
 from utils import state_dominates_point
 
 
 def test_algorithm(n_points=100, n_tests=10):
-    for dim in range(4, 11):
+    for dim in range(3, 11):
         for test_idx in range(n_tests):
             non_dominated_points = get_non_dominated_points(n_points, dim, mode="random")
             test_point = sample_random_dominated_point(non_dominated_points, dim)
@@ -15,7 +15,7 @@ def test_algorithm(n_points=100, n_tests=10):
             test_one_point(non_dominated_points, test_point, dim)
 
 
-def test_one_point(points, test_point, dim, min_eps=0.001, eps=1):
+def test_one_point(points, test_point, dim, min_eps=0.0001, eps=1):
     kink_points = get_kink_points(points, dim)
 
     distance = dist_to_kink_points(kink_points, test_point, dim)
@@ -26,9 +26,8 @@ def test_one_point(points, test_point, dim, min_eps=0.001, eps=1):
         check_distance = (1 + eps) * distance
         print(f" {eps:.6f} | {round(check_distance, 8):.6f} |", end="")
 
-        found = sample_point_until_found(points, test_point, check_distance, dim, should_find=True)
+        found = sample_epsilon_net_until_found(points, test_point, check_distance, dim, should_find=True)
         if not found:
-            warnings.warn(f"Could not find point with distance very close to the given distance")
             break
         eps /= 2
 
@@ -36,30 +35,33 @@ def test_one_point(points, test_point, dim, min_eps=0.001, eps=1):
     check_distance = (1 + eps) * distance
     print(f"-------------------------------------------")
     print(f"{eps:.6f} | {round(check_distance, 8):.6f} |", end="")
-    found = sample_point_until_found(points, test_point, check_distance, dim, should_find=False)
+    found = sample_epsilon_net_until_found(points, test_point, check_distance, dim, should_find=False)
     if found:
         raise Exception("ERROR: Found point with distance less than the actual distance")
     print()
 
 
-def sample_point_until_found(points, test_point, max_distance, dim,
-                             start_sample_size=1, max_sample_size=1_000_000, should_find=True):
+def sample_epsilon_net_until_found(points, test_point, max_distance, dim,
+                                   start_net_epsilon=1, max_sample_size=1_000_00, should_find=True):
+    test_point = np.array(test_point)
+    net_size = 0
+    while net_size < max_sample_size:
+        test_points = epsilon_net(max_distance, start_net_epsilon, dim)
+        net_size = len(test_points)
 
-    while start_sample_size < max_sample_size:
-        test_points = spherical_front(max_distance, start_sample_size, dim)
         for point in test_points:
             if not state_dominates_point(points, test_point + point, dim):
                 if should_find:
-                    print(f" \033[92myes\033[0m   | {2*start_sample_size:10d} |")
+                    print(f" \033[92myes\033[0m   | {net_size:10d} |")
                 else:
-                    print(f" \033[91myes\033[0m   | {2*start_sample_size:10d} |")
+                    print(f" \033[91myes\033[0m   | {net_size:10d} |")
                 return True
+        start_net_epsilon /= 2
 
-        start_sample_size *= 2
     if should_find:
-        print(f" \033[91mno\033[0m    | {start_sample_size:10d} |")
+        print(f" \033[91mno\033[0m    | {net_size:10d} |")
     else:
-        print(f" \033[92mno\033[0m    | {start_sample_size:10d} |")
+        print(f" \033[92mno\033[0m    | {net_size:10d} |")
 
     return False
 
