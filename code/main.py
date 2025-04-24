@@ -27,11 +27,23 @@ def dist_to_kink_points(kink_points, query_point, dim):
     return math.sqrt(min_sq_dist)
 
 
-def get_kink_points(points, n_dim):
-    points = [point for point in points if all([p > 0 for p in point[:n_dim]])]
-    points = sorted(points, key=lambda x: x[n_dim - 1], reverse=True)
+def assert_sorted(points, n_dim):
+    # assert that the points are sorted by the last coordinate
+    sorted_points = sorted(points, key=lambda x: x[n_dim - 1], reverse=True)
+    for p1, p2 in zip(points, sorted_points):
+        assert p1 == p2, f"points are not sorted correctly: {p1} != {p2};\n{points}\n{sorted_points}"
 
-    points_state, kink_candidates = get_initial_states(points, n_dim)
+
+def get_kink_points(points, n_dim):
+    points = sorted(points, key=lambda x: x[n_dim - 1], reverse=True)
+    return get_kink_points_rec(points, n_dim)
+
+
+def get_kink_points_rec(points, n_dim):
+    assert_sorted(points, n_dim)
+
+    points_state = SortedList([])
+    kink_candidates = SortedList([(0, ) * (n_dim - 1) + (math.inf, )])
     kink_points = []
 
     for point in points:
@@ -41,10 +53,10 @@ def get_kink_points(points, n_dim):
                 kink_points.append(rem_point[:n_dim - 1] + (point[n_dim - 1],))
 
         add_to_state(points_state, point, n_dim - 1)
-        if point in points_state:
-            new_candidates = get_candidates(points_state, point, n_dim - 1)
-            for new_candidate in new_candidates:
-                add_to_state(kink_candidates, new_candidate + (point[n_dim - 1], ), n_dim - 1)
+        # if point in points_state:
+        new_candidates = get_candidates(points_state, point, n_dim - 1)
+        for new_candidate in new_candidates:
+            add_to_state(kink_candidates, new_candidate + (point[n_dim - 1], ), n_dim - 1)
 
     for point in kink_candidates:
         kink_points.append(point[:n_dim - 1] + (0, ))
@@ -52,14 +64,9 @@ def get_kink_points(points, n_dim):
     return kink_points
 
 
-def get_initial_states(points, n_dim):
-    """ Returns initial states for the algorithm. """
+def get_pseudo_inf(points, n_dim):
     max_el = max([max([p for p in point]) for point in points])
-    pseudo_inf = 10 ** math.floor(math.log10(max(max_el, 1)) + 1)
-    points_state = SortedList([((0, ) * i + (pseudo_inf, ) + (0, ) * (n_dim - i - 1))
-                               for i in range(n_dim)])
-    kink_candidates = SortedList([(0, ) * (n_dim - 1) + (pseudo_inf, )])
-    return points_state, kink_candidates
+    return 10 ** math.floor(math.log10(max(max_el, 1)) + 1)
 
 
 def get_candidates(state, new_point, n_dim):
@@ -67,10 +74,11 @@ def get_candidates(state, new_point, n_dim):
     Works by recursively calling get_kink_points with a smaller dimension until it is 2. """
     if n_dim == 2:
         idx = state.index(new_point)
-        return [(state[idx - 1][0], state[idx][1], new_point[2]),
-                (state[idx][0], state[idx + 1][1], new_point[2])]
+        return [(0 if idx == 0 else state[idx - 1][0], new_point[1], new_point[2]),
+                (new_point[0], 0 if idx == len(state) - 1 else state[idx + 1][1], new_point[2])]
+
     else:
-        candidates = get_kink_points([p for p in state], n_dim)
+        candidates = get_kink_points(state[:], n_dim)
         candidates = [c for c in candidates if any([c[i] == new_point[i] for i in range(n_dim)])]
         return candidates
 
@@ -106,48 +114,9 @@ def remove_dominated(state, new_point, n_dim):
 
 
 def main():
-    # points = [(1, 2, 3), (2, 3, 1), (3, 1, 2)]
-    # points = [(1, 2, 3, 4, 5, 6), (6, 5, 4, 3, 2, 1)]
-
-    import plotly.graph_objects as go
-
-    fig = go.Figure()
-    colors = {
-        3: "red",
-        4: "blue",
-        5: "green",
-        6: "orange",
-        7: "purple",
-        8: "black",
-        9: "gray",
-    }
-    k = 30
-    for d in range(3, 8):
-        x = list(range(10, 51, 10))
-        y = []
-        for i in x:
-            points = get_non_dominated_points(i, n_dim=d, mode="linear")
-            print(len(points), end=" ")
-            p = get_kink_points(points, d)
-            y.append(len(p))
-
-        fig.add_trace(go.Scatter(
-            x=x,
-            y=y,
-            mode='lines+markers',
-            marker=dict(size=8, color=colors[d], symbol="circle"),
-            name=f"dim={d}",
-        ))
-        print()
-
-    fig.update_layout(
-        height=500,
-        width=500,
-        plot_bgcolor="white",
-    )
-    fig.show()
-
-    # visualize_kink_points(points[:-1], get_kink_points(points[:-1]))
+    points = [(1, 2, 3), (2, 3, 1), (3, 1, 2)]
+    kp = get_kink_points(points, 3)
+    visualize_kink_points(points, kp)
 
 
 if __name__ == "__main__":
