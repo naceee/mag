@@ -28,12 +28,12 @@ def plot_time_archive_size():
     plt.show()
 
 def prepare_pgfp_plot():
-    m = 1
     for dim in range(3, 7):
-        for front in ["linear", "spherical"]:
-            df = pd.read_csv(f"../performance_results/results_dim={dim}_front={front}_m={m}.csv")
-            df = df.groupby("front_size")["time"].agg(["mean"]).reset_index()
-            df.to_csv(f"../performance_results/time_{front}_{dim}D.csv", index=False)
+        for m in [1, 10, 100]:
+            for front in ["linear", "spherical"]:
+                df = pd.read_csv(f"../performance_results/results_dim={dim}_front={front}_m={m}.csv")
+                df = df.groupby("front_size")["time"].agg(["mean"]).reset_index()
+                df.to_csv(f"../csv/time_{front}_{dim}D_{m}.csv", index=False)
 
 
 def plot_time_different_m():
