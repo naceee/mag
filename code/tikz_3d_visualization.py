@@ -97,7 +97,7 @@ def get_sweep_plots_2d(points, m=None):
     for i, _ in enumerate(points):
         f_name = f"../tikz_plots/sweep_{i + 1}.tex"
         print(m)
-        plot_elements = get_plot_elements_2d(remove_dominated_points(points[:i + 1], 2), m)
+        plot_elements = get_plot_elements_2d(remove_dominated_points(points[:i + 1]), m)
         print(plot_elements)
         s = tikz_plot(plot_elements, axes_positions=("below", "left"), point_pos="above right")
 

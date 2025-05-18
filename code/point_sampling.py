@@ -1,6 +1,5 @@
 import math
 import numpy as np
-from joblib import Parallel, delayed
 
 from utils import weakly_dominates, state_dominates_point
 
@@ -15,7 +14,7 @@ def get_non_dominated_points(n_points, n_dim=3, mode='spherical', distance=1):
      all points sampled, and not to the number of non-dominated points that are returned.
     """
     if mode == "random":
-        return remove_dominated_points(np.random.random((n_points, n_dim)), n_dim)
+        return remove_dominated_points(np.random.random((n_points, n_dim)))
     elif mode == "linear":
         front = linear_front(distance, n_points, n_dim)
         return [tuple(v) for v in front]
@@ -48,8 +47,7 @@ def spherical_front(distance, num_points, dim):
 
 def epsilon_net(radius, epsilon, dim):
     """ Returns a list of non-dominated points on the n-D sphere """
-    dim_factor = np.power((dim - 1) * np.power(epsilon / 2, 2), 1 / 2)
-    h = epsilon ** 2 / (radius * dim_factor)
+    h = (2 * epsilon) / (radius * np.power((dim - 1), 1 / 2)) # TODO: preveri...
     net = epsilon_net_rec(h, dim, np.pi / 2, np.array([[1.0]]))
     return [[radius * p for p in point] for point in net]
 
@@ -75,13 +73,13 @@ def get_new_vectors(vectors, phi):
     return new_vectors
 
 
-def remove_dominated_points(points, dim):
+def remove_dominated_points(points):
     """ Removes dominated points from a list of points """
     non_dominated_points = []
     for p1 in points:
         dominated = False
         for p2 in points:
-            if weakly_dominates(p2, p1, dim) and not np.array_equal(p1, p2):
+            if weakly_dominates(p2, p1) and not np.array_equal(p1, p2):
                 dominated = True
                 break
         if not dominated:
@@ -92,6 +90,6 @@ def remove_dominated_points(points, dim):
 def sample_random_dominated_point(front, dim):
     """ Randomly samples point until it is dominated by at least one point from the front """
     random_point = np.random.random(dim)
-    while not state_dominates_point(front, random_point, dim):
+    while not state_dominates_point(front, random_point):
         random_point = np.random.random(dim)
     return tuple(random_point)

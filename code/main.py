@@ -1,17 +1,16 @@
 import math
-import warnings
-
 from sortedcontainers import SortedList
+
 from visualization import visualize_kink_points
-from point_sampling import get_non_dominated_points
-from utils import weakly_dominates, strictly_dominates_except_last, state_dominates_point
+from utils import weakly_dominates, state_dominates_point, strictly_dominates
 
 inf = float('inf')
 
+MAKE_EXPENSIVE_ASSERTS = True
 
 def distance_to_pareto_front(pareto_front, query_point):
     dim = len(query_point)
-    if not any([weakly_dominates(point, query_point, dim) for point in pareto_front]):
+    if not any([weakly_dominates(point, query_point) for point in pareto_front]):
         return 0
 
     kink_points = get_kink_points(pareto_front, dim)
@@ -30,43 +29,90 @@ def dist_to_kink_points(kink_points, query_point, dim):
 def assert_sorted(points, n_dim):
     # assert that the points are sorted by the last coordinate
     sorted_points = sorted(points, key=lambda x: x[n_dim - 1], reverse=True)
+    # print("POINTS:", list([round(float(x), 2) for x in point] for point in points))
+    # print("SORTED:", list([round(float(x), 2) for x in point] for point in sorted_points))
+    # print()
     for p1, p2 in zip(points, sorted_points):
         assert p1 == p2, f"points are not sorted correctly: {p1} != {p2};\n{points}\n{sorted_points}"
 
+
+def assert_dimensionality(points, n_dim):
+    for point in points:
+        assert len(point) == n_dim, f"points must have {n_dim} dimensions; {point}"
 
 def get_kink_points(points, n_dim):
     points = sorted(points, key=lambda x: x[n_dim - 1], reverse=True)
     return get_kink_points_rec(points, n_dim)
 
 
-def get_kink_points_rec(points, n_dim):
-    assert_sorted(points, n_dim)
+def get_kink_points_rec(points, d):
+    if MAKE_EXPENSIVE_ASSERTS:
+        assert_sorted(points, d)
+        assert_dimensionality(points, d)
+    # print("--------------->", points)
 
-    points_state = SortedList([])
-    kink_candidates = SortedList([(0, ) * (n_dim - 1) + (math.inf, )])
+    if d == 3:
+        return get_kink_points_rec_3d(points)
+
+    points_state = SortedList([], key=lambda x: -x[-1])
+
+    kp_cand = (0, ) * (d - 1)
+    kink_candidates = SortedList([kp_cand])
+    h = {kp_cand: math.inf}
+
     kink_points = []
 
     for point in points:
-        removed = remove_dominated(kink_candidates, point, n_dim - 1)
+        removed = remove_dominated(kink_candidates, point)
         for rem_point in removed:
-            if strictly_dominates_except_last(point, rem_point, n_dim):
-                kink_points.append(rem_point[:n_dim - 1] + (point[n_dim - 1],))
+            if strictly_dominates(point[:-1], rem_point) and h[rem_point] > point[-1]:
+                kink_points.append(rem_point + (point[-1],))
 
-        add_to_state(points_state, point, n_dim - 1)
-        # if point in points_state:
-        new_candidates = get_candidates(points_state, point, n_dim - 1)
-        for new_candidate in new_candidates:
-            add_to_state(kink_candidates, new_candidate + (point[n_dim - 1], ), n_dim - 1)
+        add_to_state(points_state, point[:-1])
+
+        new_kink_points = get_kink_points_rec(points_state[:], d - 1)
+        kink_candidates = SortedList(new_kink_points)
+        for nkp in new_kink_points:
+            if nkp not in h:
+                h[nkp] = point[-1]
+
 
     for point in kink_candidates:
-        kink_points.append(point[:n_dim - 1] + (0, ))
+        kink_points.append(point + (0, ))
 
     return kink_points
 
 
-def get_pseudo_inf(points, n_dim):
-    max_el = max([max([p for p in point]) for point in points])
-    return 10 ** math.floor(math.log10(max(max_el, 1)) + 1)
+def get_kink_points_rec_3d(points):
+
+    points_state = SortedList([])
+
+    kink_candidates = SortedList([(0, 0)])
+    h = {(0, 0): math.inf}
+
+    kink_points = []
+
+    for point in points:
+        removed = remove_dominated(kink_candidates, point)
+        for rem_point in removed:
+            if strictly_dominates(point[:-1], rem_point) and h[rem_point] > point[-1]:
+                kink_points.append(rem_point + (point[-1],))
+
+        add_to_state(points_state, point[:-1])
+
+        idx = points_state.index(point[:-1])
+        p1 = (0 if idx == 0 else points_state[idx - 1][0], point[1])
+        p2 = (point[0], 0 if idx == len(points_state) - 1 else points_state[idx + 1][1])
+        h[p1] = point[-1]
+        h[p2] = point[-1]
+        add_to_state(kink_candidates, p1)
+        add_to_state(kink_candidates, p2)
+
+    for point in kink_candidates:
+        kink_points.append(point + (0, ))
+
+    return kink_points
+
 
 
 def get_candidates(state, new_point, n_dim):
@@ -74,8 +120,8 @@ def get_candidates(state, new_point, n_dim):
     Works by recursively calling get_kink_points with a smaller dimension until it is 2. """
     if n_dim == 2:
         idx = state.index(new_point)
-        return [(0 if idx == 0 else state[idx - 1][0], new_point[1], new_point[2]),
-                (new_point[0], 0 if idx == len(state) - 1 else state[idx + 1][1], new_point[2])]
+        return [(0 if idx == 0 else state[idx - 1][0], new_point[1]),
+                (new_point[0], 0 if idx == len(state) - 1 else state[idx + 1][1])]
 
     else:
         candidates = get_kink_points(state[:], n_dim)
@@ -83,26 +129,24 @@ def get_candidates(state, new_point, n_dim):
         return candidates
 
 
-def add_to_state(state, new_point, n_dim):
+def add_to_state(state, new_point):
     """ Adds new_point to state, while keeping the state a list of non-dominated points,
     sorted by the first dimension.
     If new_point is dominated by any point in state, it is not added.
     All the points dominated by the new_point are removed.
     """
-    remove_dominated(state, new_point, n_dim)
+    remove_dominated(state, new_point)
 
-    if not state_dominates_point(state, new_point, n_dim):
+    if not state_dominates_point(state, new_point):
         state.add(new_point)
 
 
-def remove_dominated(state, new_point, n_dim):
+def remove_dominated(state, new_point):
     """ Removes all the points in state that are dominated by new_point. """
     removed = []
     for point in state:
-        if weakly_dominates(new_point, point, n_dim):
+        if weakly_dominates(new_point, point):
             removed.append(point)
-        elif new_point[0] < point[0]:
-            break
 
     for point in removed:
         state.remove(point)

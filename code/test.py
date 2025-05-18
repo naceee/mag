@@ -1,4 +1,4 @@
-from point_sampling import (spherical_front, get_non_dominated_points,
+from point_sampling import (remove_dominated_points, get_non_dominated_points,
                             sample_random_dominated_point, epsilon_net)
 import numpy as np
 from main import get_kink_points, dist_to_kink_points
@@ -9,13 +9,14 @@ def test_algorithm(n_points=100, n_tests=10):
     for dim in range(3, 11):
         for test_idx in range(n_tests):
             non_dominated_points = get_non_dominated_points(n_points, dim, mode="random")
+            non_dominated_points = remove_dominated_points([[round(float(x), 2) for x in pt] for pt in non_dominated_points])
             test_point = sample_random_dominated_point(non_dominated_points, dim)
 
             print(f"({dim}.{test_idx})", end=" ")
             test_one_point(non_dominated_points, test_point, dim)
 
 
-def test_one_point(points, test_point, dim, min_eps=0.0001, eps=1):
+def test_one_point(points, test_point, dim, min_eps=0.001, eps=1):
     kink_points = get_kink_points(points, dim)
 
     distance = dist_to_kink_points(kink_points, test_point, dim)
@@ -50,7 +51,7 @@ def sample_epsilon_net_until_found(points, test_point, max_distance, dim,
         net_size = len(test_points)
 
         for point in test_points:
-            if not state_dominates_point(points, test_point + point, dim):
+            if not state_dominates_point(points, test_point + point):
                 if should_find:
                     print(f" \033[92myes\033[0m   | {net_size:10d} |")
                 else:
