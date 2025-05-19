@@ -5,11 +5,20 @@ from main import get_kink_points, dist_to_kink_points
 from utils import state_dominates_point
 
 
-def test_algorithm(n_points=100, n_tests=10):
+def test_algorithm(n_points=100, n_tests=20, round_decimals=1):
+
+    pts = [(1.0, 0.9, 0.7), (0.4, 1.0, 0.5), (0.8, 1.0, 0.2), (0.6, 1.0, 0.4), (0.5, 0.9, 1.0), (1.0, 0.7, 1.0)]
+    test_point = (0.745, 0.355, 0.395)
+    test_one_point(pts, test_point, 3)
+
     for dim in range(3, 11):
         for test_idx in range(n_tests):
             non_dominated_points = get_non_dominated_points(n_points, dim, mode="random")
-            non_dominated_points = remove_dominated_points([[round(float(x), 2) for x in pt] for pt in non_dominated_points])
+            non_dominated_points = [[round(float(x), round_decimals) for x in pt]
+                                    for pt in non_dominated_points]
+            non_dominated_points = [pt for pt in non_dominated_points if all([x > 0 for x in pt])]
+            non_dominated_points = remove_dominated_points(non_dominated_points)
+
             test_point = sample_random_dominated_point(non_dominated_points, dim)
 
             print(f"({dim}.{test_idx})", end=" ")
@@ -38,6 +47,8 @@ def test_one_point(points, test_point, dim, min_eps=0.001, eps=1):
     print(f"{eps:.6f} | {round(check_distance, 8):.6f} |", end="")
     found = sample_epsilon_net_until_found(points, test_point, check_distance, dim, should_find=False)
     if found:
+        print(points)
+        print(test_point)
         raise Exception("ERROR: Found point with distance less than the actual distance")
     print()
 
