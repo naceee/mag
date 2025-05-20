@@ -20,3 +20,28 @@ def state_dominates_point(state, point):
         if weakly_dominates(state_point, point):
             return True
     return False
+
+def get_dominated_points_bisect(sorted_list, point):
+    right = bisect_x(sorted_list, point[0])
+    left = bisect_y(sorted_list, point[1])
+    return left, right
+
+def bisect_x(lst, x):
+    i, j = 0, len(lst)
+    while i < j:
+        mid = (i + j) // 2
+        if lst[mid][0] < x:
+            i = mid + 1
+        else:
+            j = mid
+    return i
+
+def bisect_y(lst, y):
+    i, j = 0, len(lst)
+    while i < j:
+        mid = (i + j) // 2
+        if lst[mid][1] < y:
+            j = mid
+        else:
+            i = mid + 1
+    return i

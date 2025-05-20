@@ -2,7 +2,7 @@ import math
 from sortedcontainers import SortedList
 
 from visualization import visualize_kink_points
-from utils import weakly_dominates, state_dominates_point, strictly_dominates
+from utils import weakly_dominates, state_dominates_point, strictly_dominates, get_dominated_points_bisect
 
 inf = float('inf')
 
@@ -86,14 +86,13 @@ def get_kink_points_rec(points, d):
 def get_kink_points_rec_3d(points):
 
     points_state = SortedList([])
-
     kink_candidates = SortedList([(0, 0)])
     h = {(0, 0): math.inf}
 
     kink_points = []
 
     for point in points:
-        removed = remove_strictly_dominated_3D(kink_candidates, point[:-1])
+        removed = remove_strictly_dominated_3d(kink_candidates, point[:-1])
         for rem_point in removed:
             if strictly_dominates(point[:-1], rem_point) and h[rem_point] > point[-1]:
                 kink_points.append(rem_point + (point[-1],))
@@ -165,27 +164,24 @@ def remove_strictly_dominated(state, new_point):
 
     return removed
 
-def remove_strictly_dominated_3D(state, new_point):
+def remove_strictly_dominated_3d(state, new_point):
     """ Removes all the points in state that are dominated by new_point. """
-    removed = []
-    # state is sorted ascending by the first coordinate
-    for point in state:
-        if strictly_dominates(new_point, point):
-            removed.append(point)
-        elif point[0] > new_point[0]:
-            break
+    left, right = get_dominated_points_bisect(state, new_point)
 
-    for point in removed:
-        state.remove(point)
+    removed = state[left:right]
+    del state[left:right]
+
+    if MAKE_EXPENSIVE_ASSERTS:
+        for el in removed:
+            assert weakly_dominates(new_point, el), f"point doesn't dominate removed point: {new_point}, {el}"
+            assert el not in state, f"removed point is still in state: {state}, {el}"
 
     return removed
 
 
 
-
-
 def main():
-    points = [(1, 2, 3), (2, 3, 1), (3, 1, 2)]
+    points = [(1.0, 0.9, 0.7), (0.4, 1.0, 0.5), (0.8, 1.0, 0.2), (0.6, 1.0, 0.4), (0.5, 0.9, 1.0), (1.0, 0.7, 1.0)]
     kp = get_kink_points(points, 3)
     visualize_kink_points(points, kp)
 
