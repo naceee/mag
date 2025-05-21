@@ -49,7 +49,6 @@ def get_kink_points_rec(points, d):
     if MAKE_EXPENSIVE_ASSERTS:
         assert_sorted(points, d)
         assert_dimensionality(points, d)
-    # print("--------------->", points)
 
     if d == 3:
         return get_kink_points_rec_3d(points)
@@ -63,12 +62,12 @@ def get_kink_points_rec(points, d):
     kink_points = []
 
     for point in points:
-        removed = remove_strictly_dominated(kink_candidates, point)
+        removed = remove_dominated_nd(kink_candidates, point, "strict")
         for rem_point in removed:
             if strictly_dominates(point[:-1], rem_point) and h[rem_point] > point[-1]:
                 kink_points.append(rem_point + (point[-1],))
 
-        add_to_state(points_state, point[:-1])
+        add_to_state(points_state, point[:-1], d)
 
         new_kink_points = get_kink_points_rec(points_state[:], d - 1)
         kink_candidates = SortedList(new_kink_points)
@@ -92,21 +91,28 @@ def get_kink_points_rec_3d(points):
     kink_points = []
 
     for point in points:
-        removed = remove_strictly_dominated_3d(kink_candidates, point[:-1])
+        # O(log(n) + #removed v)
+        removed = remove_dominated_3d(kink_candidates, point[:-1], "strict")
+        # O(#removed)
         for rem_point in removed:
             if strictly_dominates(point[:-1], rem_point) and h[rem_point] > point[-1]:
                 kink_points.append(rem_point + (point[-1],))
 
-        add_to_state(points_state, point[:-1])
+        # O(log n + #removed p)
+        add_to_state(points_state, point[:-1], 3)
 
+        # O(log n)
         idx = points_state.index(point[:-1])
         p1 = (0 if idx == 0 else points_state[idx - 1][0], point[1])
         p2 = (point[0], 0 if idx == len(points_state) - 1 else points_state[idx + 1][1])
+
+        # O(log n)
         for p in [p1, p2]:
             if p not in h:
                 h[p] = point[-1]
-                add_to_state(kink_candidates, p)
+                add_to_state(kink_candidates, p, 3)
 
+    # O(n)
     for point in kink_candidates:
         kink_points.append(point + (0, ))
 
@@ -114,37 +120,29 @@ def get_kink_points_rec_3d(points):
 
 
 
-def get_candidates(state, new_point, n_dim):
-    """ Returns kink point candidates after adding new_point to state.
-    Works by recursively calling get_kink_points with a smaller dimension until it is 2. """
-    if n_dim == 2:
-        idx = state.index(new_point)
-        return [(0 if idx == 0 else state[idx - 1][0], new_point[1]),
-                (new_point[0], 0 if idx == len(state) - 1 else state[idx + 1][1])]
-
-    else:
-        candidates = get_kink_points(state[:], n_dim)
-        candidates = [c for c in candidates if any([c[i] == new_point[i] for i in range(n_dim)])]
-        return candidates
-
-
-def add_to_state(state, new_point):
+def add_to_state(state, new_point, d):
     """ Adds new_point to state, while keeping the state a list of non-dominated points,
     sorted by the first dimension.
     If new_point is dominated by any point in state, it is not added.
     All the points dominated by the new_point are removed.
     """
-    remove_dominated(state, new_point)
+    if d == 3:
+        remove_dominated_3d(state, new_point, "weak")
+    else:
+        remove_dominated_nd(state, new_point, "weak")
 
     if not state_dominates_point(state, new_point):
         state.add(new_point)
 
 
-def remove_dominated(state, new_point):
+def remove_dominated_nd(state, new_point, domination):
     """ Removes all the points in state that are dominated by new_point. """
+    assert domination in ["strict", "weak"]
+
     removed = []
     for point in state:
-        if weakly_dominates(new_point, point):
+        if (strictly_dominates(new_point, point) or
+                (domination == "weak" and weakly_dominates(new_point, point))):
             removed.append(point)
 
     for point in removed:
@@ -152,21 +150,11 @@ def remove_dominated(state, new_point):
 
     return removed
 
-def remove_strictly_dominated(state, new_point):
+
+def remove_dominated_3d(state, new_point, domination):
     """ Removes all the points in state that are dominated by new_point. """
-    removed = []
-    for point in state:
-        if strictly_dominates(new_point, point):
-            removed.append(point)
-
-    for point in removed:
-        state.remove(point)
-
-    return removed
-
-def remove_strictly_dominated_3d(state, new_point):
-    """ Removes all the points in state that are dominated by new_point. """
-    left, right = get_dominated_points_bisect(state, new_point)
+    assert domination in ["strict", "weak"]
+    left, right = get_dominated_points_bisect(state, new_point, domination)
 
     removed = state[left:right]
     del state[left:right]

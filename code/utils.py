@@ -21,26 +21,36 @@ def state_dominates_point(state, point):
             return True
     return False
 
-def get_dominated_points_bisect(sorted_list, point):
-    right = bisect_x(sorted_list, point[0])
-    left = bisect_y(sorted_list, point[1])
+def get_dominated_points_bisect(sorted_list, point, domination):
+    right = bisect_x(sorted_list, point[0], domination)
+    left = bisect_y(sorted_list, point[1], domination)
     return left, right
 
-def bisect_x(lst, x):
+def get_compare_fun(domination):
+    if domination == "strict":
+        return lambda x, y: x < y
+    else:
+        return lambda x, y: x <= y
+
+def bisect_x(lst, el, domination):
+    f_compare = get_compare_fun(domination)
+
     i, j = 0, len(lst)
     while i < j:
         mid = (i + j) // 2
-        if lst[mid][0] < x:
+        if f_compare(lst[mid][0], el):
             i = mid + 1
         else:
             j = mid
     return i
 
-def bisect_y(lst, y):
+def bisect_y(lst, el, domination="strict"):
+    f_compare = get_compare_fun(domination)
+
     i, j = 0, len(lst)
     while i < j:
         mid = (i + j) // 2
-        if lst[mid][1] < y:
+        if f_compare(lst[mid][1], el):
             j = mid
         else:
             i = mid + 1
