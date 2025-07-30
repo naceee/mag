@@ -21,6 +21,12 @@ def get_non_dominated_points(n_points, n_dim=3, mode='spherical', distance=1):
     elif mode == "spherical":
         front = spherical_front(distance, n_points, n_dim)
         return [tuple(v) for v in front]
+    elif mode == "worst_case":
+        if n_dim == 2:
+            return get_non_dominated_points(n_points, 2, 'linear', distance)
+        front = linear_front(distance, n_points, n_dim - 1)
+        last_dimension = np.random.random(n_points)
+        return [tuple(list(v) + [w]) for v, w in zip(front, last_dimension)]
     else:
         raise ValueError("Invalid mode")
 
@@ -43,6 +49,31 @@ def spherical_front(distance, num_points, dim):
     vectors = vectors / np.linalg.norm(vectors, axis=1)[:, np.newaxis]
     vectors = vectors * distance
     return vectors
+
+def epsilon_net_from_square(radius, epsilon, dim):
+    h = 2 * epsilon / np.power(dim - 1, 0.5)
+    n = math.ceil(radius / h) + 1
+    lspace = np.linspace(0, radius, n)
+    grid = np.meshgrid(*([lspace] * (dim - 1)))
+    points = np.vstack([g.ravel() for g in grid]).T
+    l = len(points)
+
+    square_pts = []
+    for d in range(dim):
+        stacked = np.column_stack([points[:, :d], [radius] * l, points[:, d:]])
+        square_pts.append(stacked)
+
+    square_pts = np.vstack(square_pts)
+
+    # print(square_pts)
+    norms = np.linalg.norm(square_pts, axis=1, keepdims=True)
+
+    # Normalize: divide each point by its norm
+    circle_pts = square_pts / norms * radius
+    circle_pts = np.unique(circle_pts, axis=0)
+
+    return circle_pts
+
 
 
 def epsilon_net(radius, epsilon, dim):
@@ -93,3 +124,10 @@ def sample_random_dominated_point(front, dim):
     while not state_dominates_point(front, random_point):
         random_point = np.random.random(dim)
     return tuple(random_point)
+
+
+if __name__ == "__main__":
+    epsilon_net_from_square(1, 0.5, 2)
+    epsilon_net_from_square(1, 0.5, 3)
+    epsilon_net_from_square(1, 0.5, 4)
+    epsilon_net_from_square(1, 0.5, 5)
