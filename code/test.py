@@ -1,17 +1,17 @@
 from point_sampling import (remove_dominated_points, get_non_dominated_points,
-                            sample_random_dominated_point, epsilon_net)
+                            sample_random_dominated_point, epsilon_net, epsilon_net_from_square)
 import numpy as np
 from main import get_kink_points, dist_to_kink_points
 from utils import state_dominates_point
 
 
-def test_algorithm(n_points=100, n_tests=20, round_decimals=1):
+def test_algorithm(n_points=100, n_tests=1, round_decimals=1):
 
     pts = [(1.0, 0.9, 0.7), (0.4, 1.0, 0.5), (0.8, 1.0, 0.2), (0.6, 1.0, 0.4), (0.5, 0.9, 1.0), (1.0, 0.7, 1.0)]
     test_point = (0.745, 0.355, 0.395)
-    test_one_point(pts, test_point, 3)
+    # test_one_point(pts, test_point, 3)
 
-    for dim in range(3, 11):
+    for dim in range(3, 7):
         for test_idx in range(n_tests):
             non_dominated_points = get_non_dominated_points(n_points, dim, mode="random")
             non_dominated_points = [[round(float(x), round_decimals) for x in pt]
@@ -25,27 +25,29 @@ def test_algorithm(n_points=100, n_tests=20, round_decimals=1):
             test_one_point(non_dominated_points, test_point, dim)
 
 
-def test_one_point(points, test_point, dim, min_eps=0.001, eps=1):
+def test_one_point(points, test_point, dim):
     kink_points = get_kink_points(points, dim)
 
     distance = dist_to_kink_points(kink_points, test_point, dim)
     print(f"CALCULATED DISTANCE: {distance:.6f}")
-    print(f"   eps    |   dist   | found |  n points  |")
+    print(f"  delta   |   dist   | found |  n points  |")
     print(f"-------------------------------------------")
-    while eps > min_eps:
-        check_distance = (1 + eps) * distance
-        print(f" {eps:.6f} | {round(check_distance, 8):.6f} |", end="")
-
-        found = sample_epsilon_net_until_found(points, test_point, check_distance, dim, should_find=True)
-        if not found:
-            break
-        eps /= 2
-
-    eps = -10e-6
-    check_distance = (1 + eps) * distance
+    df = {
+        3: 0.01,
+        4: 0.1,
+        5: 0.05,
+        6: 0.2
+    }
+    delta_factor = df[dim]
+    delta = delta_factor * distance
+    print(f"{delta_factor:-8f} {distance + delta:.8f} | {round(distance, 8):.6f} |", end="")
+    found = sample_epsilon_net_direct(points, test_point, delta, distance + delta, dim, should_find=True)
     print(f"-------------------------------------------")
-    print(f"{eps:.6f} | {round(check_distance, 8):.6f} |", end="")
-    found = sample_epsilon_net_until_found(points, test_point, check_distance, dim, should_find=False)
+    mu = 10**(-10)
+    delta = delta_factor * distance - mu
+    print(f"{delta_factor:-8f} {distance - mu:.8f} | {round(distance, 8):.6f} |", end="")
+    found = sample_epsilon_net_direct(points, test_point, delta, distance - mu, dim, should_find=False)
+
     if found:
         print(points)
         print(test_point)
@@ -76,6 +78,29 @@ def sample_epsilon_net_until_found(points, test_point, max_distance, dim,
         print(f" \033[92mno\033[0m    | {net_size:10d} |")
 
     return False
+
+def sample_epsilon_net_direct(points, test_point, delta, distance, dim, should_find=True):
+    test_point = np.array(test_point)
+
+    test_points = epsilon_net_from_square(distance, epsilon=delta/np.sqrt(dim), dim=dim)
+    net_size = len(test_points)
+
+    for point in test_points:
+        if not state_dominates_point(points, test_point + point):
+            if should_find:
+                print(f" \033[92myes\033[0m   | {net_size:10d} |")
+            else:
+                print(f" \033[91myes\033[0m   | {net_size:10d} |")
+            return True
+
+    if should_find:
+        print(f" \033[91mno\033[0m    | {net_size:10d} |")
+    else:
+        print(f" \033[92mno\033[0m    | {net_size:10d} |")
+
+    return False
+
+
 
 
 if __name__ == '__main__':
