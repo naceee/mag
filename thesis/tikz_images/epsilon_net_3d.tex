@@ -1,0 +1,22 @@
+\begin{tikzpicture}
+  \begin{axis}[
+    view={100}{20},
+    xlabel={$f_2$},
+    ylabel={$f_1$},
+    zlabel={$f_3$},
+    xmin=0, xmax=3.5,
+    ymin=0, ymax=3.5,
+    zmin=0, zmax=3.5,
+    width=7cm,
+    height=7cm,
+    axis lines=center,
+    ticks=none,
+    enlargelimits=true
+  ]
+    \addplot3[
+      only marks,
+      mark=*,
+      black,
+    ] table [x=x, y=y, z=z, col sep=comma] {csv/epsilon_net_3D.csv};
+  \end{axis}
+\end{tikzpicture}

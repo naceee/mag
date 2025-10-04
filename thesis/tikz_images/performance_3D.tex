@@ -1,0 +1,57 @@
+\begin{tikzpicture}
+\begin{semilogxaxis}[
+    width=7.35cm,
+    height=5.0cm,
+    grid=major,
+    grid style={dashed, gray!20},
+    minor tick num=0,
+    xlabel={$|\P|$},
+    ylabel={Količnik},
+    title={Razmerja hitrosti algoritma (3D)},
+    legend columns=3,
+    legend to name=plots:sharedlegend,
+    legend style={
+        draw=black,
+        fill=white,
+        font=\scriptsize,
+        column sep=1ex,
+        legend columns=3,
+        /tikz/every even column/.append style={column sep=1ex},
+        at={(0.5,-0.3)},
+        anchor=north
+    },
+    tick label style={font=\scriptsize},
+    label style={font=\scriptsize},
+    title style={font=\scriptsize},
+    cycle list={
+        {Reds-G, very thick, mark=none},
+        {Blues-G, very thick, mark=none},
+        {Greens-G, very thick, mark=none},
+        {Reds-K, very thick, mark=none},
+        {Blues-K, very thick, mark=none},
+        {Greens-K, very thick, mark=none}
+    },
+]
+
+\addplot table [x=front_size, y=multiplier, col sep=comma] {csv/comparison_worst_case_3D_10.csv};
+\addlegendentry{zah 10}
+
+\addplot table [x=front_size, y=multiplier, col sep=comma] {csv/comparison_linear_3D_10.csv};
+\addlegendentry{lin 10}
+
+\addplot table [x=front_size, y=multiplier, col sep=comma] {csv/comparison_spherical_3D_10.csv};
+\addlegendentry{sfer 10}
+
+\addplot table [x=front_size, y=multiplier, col sep=comma] {csv/comparison_worst_case_3D_100.csv};
+\addlegendentry{zah 100}
+
+\addplot table [x=front_size, y=multiplier, col sep=comma] {csv/comparison_linear_3D_100.csv};
+\addlegendentry{lin 100}
+
+\addplot table [x=front_size, y=multiplier, col sep=comma] {csv/comparison_spherical_3D_100.csv};
+\addlegendentry{sfer 100}
+
+\draw[dotted] (1,1) -- (1000000,1);
+
+\end{semilogxaxis}
+\end{tikzpicture}

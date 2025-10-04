@@ -30,10 +30,34 @@ def plot_time_archive_size():
 def prepare_pgfp_plot():
     for dim in range(3, 7):
         for m in [1, 10, 100]:
-            for front in ["linear", "spherical"]:
+            for front in ["linear", "spherical", "worst_case"]:
                 df = pd.read_csv(f"../performance_results/results_dim={dim}_front={front}_m={m}.csv")
                 df = df.groupby("front_size")["time"].agg(["mean"]).reset_index()
                 df.to_csv(f"../csv/time_{front}_{dim}D_{m}.csv", index=False)
+
+
+def plot_time_multiplier():
+    for dim in range(3, 7):
+        for front in ["linear", "spherical", "worst_case"]:
+            df1 = pd.read_csv(f"../csv/time_{front}_{dim}D_1.csv")
+            df10 = pd.read_csv(f"../csv/time_{front}_{dim}D_10.csv")
+            df100 = pd.read_csv(f"../csv/time_{front}_{dim}D_100.csv")
+
+            min_len = min([len(df1), len(df10), len(df100)])
+            df1 = df1.head(min_len)
+            df10 = df10.head(min_len)
+            df100 = df100.head(min_len)
+
+            data10 = np.array([df1["front_size"].values.flatten(), (df10["mean"].values / df1["mean"].values).flatten()]).T
+            data100 = np.array([df1["front_size"].values.flatten(), (df100["mean"].values / df1["mean"].values).flatten()]).T
+            df10 = pd.DataFrame(data=data10, columns=["front_size", "multiplier"])
+            df10.to_csv(f"../csv/comparison_{front}_{dim}D_10.csv", index=False)
+            df100 = pd.DataFrame(data=data100, columns=["front_size", "multiplier"])
+            df100.to_csv(f"../csv/comparison_{front}_{dim}D_100.csv", index=False)
+
+
+
+
 
 
 def plot_time_different_m():
@@ -67,3 +91,4 @@ if __name__ == '__main__':
     # plot_time_archive_size()
     # plot_time_different_m()
     prepare_pgfp_plot()
+    plot_time_multiplier()

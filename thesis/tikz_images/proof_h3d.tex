@@ -1,0 +1,21 @@
+\begin{tikzpicture}
+
+    \draw[gray, dashed] (-0.5, 0) -- (2.5, 0) node[midway, below] {$\frac{r}{k}$};    
+    \draw[gray, dashed] (-0.5, 2) -- (2.5, 2);      
+    \draw[gray, dashed] (0, -0.5) -- (0, 2.5);      
+    \draw[gray, dashed] (2, -0.5) -- (2, 2.5);      
+
+    % Draw a small dot at the origin
+    \fill (0,0) circle (2pt);
+    \fill (0,2) circle (2pt);
+    \fill (2,0) circle (2pt);
+    \fill (2,2) circle (2pt);
+
+    \draw (0, 0) -- (1, 0);      
+    \draw (1, 0) -- (1, 1);      
+    
+    \fill[nodecol2] (1,1) circle (2pt) node[above right] {\( \textbf{x} \)};
+    \draw[line width=0.3mm, nodecol2] (1, 1) -- (0, 0);
+
+
+\end{tikzpicture}

@@ -1,0 +1,114 @@
+\section{Analiza pravilnosti}
+\label{sec:analiza_pravilnosti}
+V tem poglavju analiziramo pravilnost algoritma. Najprej predstavimo idejo testiranja, nato pa postopek ter rezultate. 
+
+\subsection{Ideja testiranja}
+Naj bo $\P$ množica nedominiranih točk, $\textbf{q}$ točka poizvedbe in $r$ z algoritmom izračunana razdalja $d(\textbf{q}, N(\P))$. Potem mora za vsak $\delta > 0$ veljati
+\begin{align*}
+    &S(\textbf{q}, r - \delta) \cap N(\P) = \varnothing, \\
+    &S(\textbf{q}, r + \delta) \cap N(\P) \neq \varnothing,
+\end{align*}
+kjer je $S(\textbf{q}, r)$ sfera s središčem v $\textbf{q}$ in radijem $r$. 
+
+Da lahko računamo presek sfere z $N(\P)$, sfero diskretiziramo. Diskretizacija sfere $S(\textbf{q}, r)$ je množica točk, označimo jo z $\Sigma(\textbf{q}, r, \varepsilon)$, ki ležijo na $S(\textbf{q}, r)$ in za katere velja
+\[
+\forall \textbf{x} \in S(\textbf{q}, r): \quad \min_{\textbf{s} \in \Sigma(\textbf{q}, r, \varepsilon)} ||\textbf{x} - \textbf{s}|| \leq \varepsilon.
+\]
+Presek med diskretno sfero $\Sigma(\textbf{q}, r)$ in $N(\P)$ izračunamo enostavno
+\[
+\Sigma(\textbf{q}, r, \varepsilon) \cap N(\P) = \{ \textbf{s} \in \Sigma(\textbf{q}, r, \varepsilon) \mid \textbf{s} \succeq 0 \land \neg  (\P \ggcurly \textbf{s}) \}.
+\]
+Opazimo tudi, da so vse komponente vektorja med poljubno točko $\textbf{q} \notin N(\P)$ in njej najbližjo točko $\textbf{z} \in N(\P)$ vedno nenegativne. Torej zadošča da preverimo le del sfere $\Sigma(\textbf{q}, r, \varepsilon)$, kjer so vsi elementi nenegativni, kar označimo s $\Sigma^+(\textbf{q}, r, \varepsilon)$.
+Primer treh točk poizvedbe in ustrezajočih pozitivnih delov sfer vidimo na sliki~\ref{fig:test_example}.
+\begin{figure}[ht]
+  \centering
+  \input{tikz_images/test_example}
+  \caption{Tri točke poizvedbe $\textbf{q}^1$, $\textbf{q}^2$, $\textbf{q}^3$ skupaj z njihovimi razdaljami do nedominiranega območja ter ustrezajočimi sferami $\Sigma^+(\textbf{q}, r + \delta, \varepsilon)$ s polno črto in $\Sigma^+(\textbf{q}, r - \delta, \varepsilon)$ s črtkano črto.}
+  \label{fig:test_example}
+\end{figure}
+
+\subsection{Diskretizacija sfere}
+
+%\nace{Nisem našel članka, ki bi razložil metodo s kocko, kot sva govorila v petek, da bi lahko samo enostavno citiral (morda ne iščem pravih ključnih besed). Prav trivialno se mi pa tudi ne zdi, tako da sem potem raje poskusil formalizirati algoritem, ki sem ga do zdaj uporabljal. Napisano (še) ni najbolje, ampak iz slik boste verjetno razumeli kaj je ideja. Povejte če se vam zdi ali je to v redu pristop, ker pri višjih dimenzijah težko argumentiram, da je to gotovo $\varepsilon$-net (kar sem uspel testirati zgleda sicer ok).}
+
+%V tem razdelku predstavimo algoritem za diskretizacijo pozitivnega dela sfere. Brez škode za splošnost predpostavimo, da je središče sfere v $\textbf{0}$ in radij enak $1$, torej iščemo množico točk $\Sigma^+(\textbf{0}, 1)$, ki jo bomo v tem razdelku krajše imenovali $S^D$, kjer $D$ označuje dimenzijo sfere\footnote{Kot je običajno, bomo s $S^D$ mislili množico točk v $(D+1)$-dimenzionalnem prostoru}. Prav tako bomo tekom razdelka namesto `pozitivni del sfere' pisali le `sfera'.
+
+%Algoritem rekurzivno deli sfero $S^D$ na več sfer manjše dimenzije $S^{d-1}$, dokler ne pride do $S^1$, kjer sfero razdeli na množico točk. Primer delitve sfere v $S^2$ na sfere $S^1$ je viden na sliki~\ref{fig:constructing_sphere_1}, primer delitev dveh sfer $S^1$ na točke pa je prikazan na sliki~\ref{fig:constructing_sphere_2}. Vidimo, da sfer ne razdelimo na enako število točk (oziroma sfer nižje dimenzije), temveč jih razdelimo tako, da so točke (oziroma sfere) čim bolj enakomerno razporejene. Tako poskrbimo, da je gostota točk po vsej sferi čim bolj enakomerna. 
+
+\begin{figure}[ht]
+    \begin{subfigure}{0.49\textwidth}
+        \centering
+        \input{tikz_images/constructing_sphere_from_cube_2d}
+        \caption{Delitev sfere $S^2$ na 10 sfer $S^1$ označenih z debelejšo črto.}
+        \label{fig:constructing_sphere_1}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}{0.49\textwidth}
+        \centering
+        \input{tikz_images/constructing_sphere_from_cube_3d}
+        \caption{Delitev dveh sfer $S^1$. Zgornjo razdelimo na 6 točk, spodnjo pa na 10 točk.}
+        \label{fig:constructing_sphere_2}
+    \end{subfigure}
+    \caption{Prikaz delitve sfere $S^2$ na levi in sfere $S^1$ na desni.}
+    \label{fig:constructing_sphere}
+\end{figure}
+
+Bolj formalno za sfero $S^D$ definiramo množico kotov $\{\phi^D_i\}_{i=0}^k$ kjer je $\phi_i = \frac{i}{k}\frac{\pi}{2}$ in je $k = \left\lceil \frac{\pi}{2 (\eta+1)} \right\rceil$. Spremenljivka $\eta$ predstavlja želeni razmik med točkami na sferi in je odvisna od izbire $\varepsilon$ ter dimenzije $D$. Primer za sfero $S^2$ je prikazan na sliki~\ref{fig:proof_h}, za splošen $D$, pa se izračuna kot:
+\[
+\eta = \frac{2 \varepsilon}{\sqrt{D}}.
+\]
+\begin{figure}[ht]
+  \centering
+  \input{tikz_images/proof_h}
+  \caption{Skica prikazuje odvisnost $\eta$ od $\varepsilon$ v primeru sfere $S^2$. S črtkano črto sta predstavljeni dve sferi $S^1$, s črnimi pikami pa točke diskretizacije. Točka $\textbf{x}$ predstavlja točko, ki je od diskretizacije čim bolj oddaljena. \nace{tu zdaj predpostavljamo, da je sfera `lokalno ravna', kar nisem prepričan če je čisto v redu.}}
+  \label{fig:proof_h}
+\end{figure}
+
+Za vsak kot $\phi_i$, definiramo sfero $S^{D-1}_i$, dimenzije $D-1$. Vsem točkam na sferi $S^{D-1}_i$ določimo zadnjo koordinato kot $\sin(\phi^D_i)$, vse ostale koordinate pa pomnožimo s $\cos(\phi^D_i)$. Ker so nove sfere $S^{D-1}_i$ različnih velikosti, moramo za vsako izmed njih ustrezno zmanjšati $k$, ki se na naslednjem koraku izračuna kot $k_i = \left\lceil \cos(\phi^{D}_i) \frac{\pi}{2 (\eta+1)} \right\rceil$.
+
+Primer diskretizacije sfer $S^1$ in $S^2$, dobljenih z opisanim algoritmom, vidimo na sliki~\ref{fig:epsilon_net}.
+
+\begin{figure}[ht]
+    \begin{subfigure}{0.45\textwidth}
+        \centering
+        \input{tikz_images/epsilon_net_2d}
+        \caption{Diskretna predstavitev $S^+_{0.2}(\textbf{0}, 3)$ v dveh dimenzijah vsebuje 14 točk.}
+        \label{fig:epsilon_net_2d}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}{0.45\textwidth}
+        \centering
+        \input{tikz_images/epsilon_net_3d}
+        \caption{Diskretna predstavitev $S^+_{0.2}(\textbf{0}, 3)$ v treh dimenzijah vsebuje 218 točk.}
+        \label{fig:epsilon_net_3d}
+    \end{subfigure}
+    \caption{Primera diskretizacij sfere $S^1$ v dvodimenzionalnem prostoru na levi in $S^2$ v tridimenzionalnem prostoru na desni. Pri obeh je $r=3$ ter $\varepsilon = 0.2$, vidimo pa, da je število točk precej večje pri $S^2$.}
+    \label{fig:epsilon_net}
+\end{figure}
+
+
+
+\subsection{Testiranje}
+
+
+\begin{figure}[ht]
+    \begin{subfigure}{0.49\textwidth}
+      \centering
+      \input{tikz_images/determining_epsilon}
+      \caption{Slika prikazuje ilustracijo testne sfere z izhodiščem v $q$ in radijem $r+\delta$ s polno oranžno črto, ki vsebuje modro sfero z izhodiščem v vpeti točki. Za izbiro $\varepsilon = \frac{\delta}{2} (?)$ tako velja, da bo vsaj ena točka diskretizacije testne sfere znotraj $N(\P)$.}
+      \label{fig:determining-epsilon1}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}{0.49\textwidth}
+      \centering
+      \input{tikz_images/determining_epsilon3}
+      \caption{Slika prikazuje diskretizacijo testne sfere z izhodiščem v $q$ in radijem $r-\delta'$, kjer je $r$ napačno izračunana razdalja algoritma. Želimo si, da bi bila diskretizacija testne sfere dovolj gosta, da bi se vsaj ena izmed točk nahajala v $N(\P)$, za vsak $r > \delta + d(\textbf{q}, N(\P))$}
+      \label{fig:determining-epsilon3}
+    \end{subfigure}
+    \caption{Sliki prikazujeta kako določimo epsilon kadar želimo pokazati, da je $d(\textbf{q}, N(\P)) < r + \delta$ (na sliki a) in $r - \delta < d(\textbf{q}, N(\P))$ (na sliki b).}
+    \label{fig:determining-epsilon}
+\end{figure}
+
+
+
+

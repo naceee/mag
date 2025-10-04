@@ -1,0 +1,121 @@
+\section{Večkriterijska optimizacija}
+\label{sec:definicija}
+V tem poglavju definiramo splošni večkriterijski optimizacijski problem ter podamo osnovne pojme in definicije povzete po~\cite{definitions}, ki jih potrebujemo v nadaljevanju. 
+
+Pri večkriterijski optimizaciji optimiramo funkcijo $f = (f_1, \dots, f_D)$,
+\begin{align*}
+    &f: X \to Z, \\
+    &f(\textbf{x}) = (f_1(\textbf{x}), \dots,  f_D(\textbf{x})),
+\end{align*}
+kjer so $f_i$ funkcije ene ali več spremenljivk, $X$ prostor spremenljivk in $Z \subseteq \R^D$ prostor kriterijev. Skozi celotno delo bomo brez škode za splošnost predpostavljali, da vse kriterije maksimiramo\footnote{Kriterij, ki bi ga sicer minimirali lahko pomnožimo z $-1$ ter tako dobimo ekvivalenten kriterij, ki ga maksimiramo.}. 
+V okviru tega dela se bomo osredotočili na kriterijske vektorje $\textbf{z} \in Z$, ki ustrezajo neki rešitvi $\textbf{x}$ iz prostora spremenljivk $X$, torej velja $\textbf{z} = f(\textbf{x})$. Sledeče definicije bomo torej podali v prostoru kriterijev $Z$, vrednosti kriterijev $(z_1, \dots, z_D)$ pa bomo obravnavali kot točko v $\R^D$.
+
+\begin{definicija}
+Točka $\textbf{z} = (z_1, \dots, z_D)$ \textit{šibko dominira} točko $\textbf{y} = (y_1, \dots, y_D)$, če velja
+\[
+\forall i \in \{1, \dots, D\}: \quad z_i \geq y_i.
+\]
+V tem primeru pišemo $\textbf{z} \succeq \textbf{y}$.
+\end{definicija}
+
+\begin{definicija}
+Če točka $\textbf{z} = (z_1, \dots, z_D)$ šibko dominira točko $\textbf{y} = (y_1, \dots, y_D)$ in za nek $i \in \{1, \dots, D\}$ velja
+\[
+z_i > y_i,
+\]
+potem rečemo, da $\textbf{z}$ \textit{dominira} $\textbf{y}$ in pišemo $\textbf{z} \succ \textbf{y}$.
+\end{definicija}
+
+\begin{definicija}
+Če za točki $\textbf{z} = (z_1, \dots, z_D)$ in $\textbf{y} = (y_1, \dots, y_D)$  velja
+\[
+\forall i \in \{1, \dots, D\}: \quad z_i > y_i,
+\]
+potem rečemo, da $\textbf{z}$ \textit{strogo dominira} $\textbf{y}$ in pišemo $\textbf{z} \ggcurly \textbf{y}$.
+\end{definicija}
+
+\begin{definicija}
+Če za točki $\textbf{z} = (z_1, \dots, z_D)$ in $\textbf{y} = (y_1, \dots, y_D)$ obstajata taka $i$ in $j$, da velja
+\[
+z_i > y_i \land z_j < y_j
+\]
+potem rečemo, da sta $\textbf{z}$ in $\textbf{y}$ \textit{neprimerljivi} in pišemo $\textbf{z} \parallel \textbf{y}$.
+\end{definicija}
+
+Očitno za relacijo $\parallel$ velja simetričnost, za relacije $\ggcurly$, $\succ$ in $\succeq$ pa velja tranzitivnost ter tudi naravna ureditev
+\[
+\textbf{z} \ggcurly \textbf{y}~~\Longrightarrow~~\textbf{z} \succ \textbf{y} ~~\Longrightarrow~~ \textbf{z} \succeq \textbf{y}.
+\]
+Za vsak par točk \textbf{y} in \textbf{z} velja natanko ena izmed relacij $=$, $\parallel$, $\succ$ ali $\prec$.
+Na sliki~\ref{fig:points_domination} so prikazane tri točke in relacije dominiranosti, ki veljajo med njimi v prostoru dveh kriterijev. 
+\begin{figure}[ht]
+  \centering
+  \input{tikz_images/points_domination}
+  \caption{Primeri relacij dominiranosti med točkami $a$, $b$ in $c$. Veljajo naslednje relacije: $c \ggcurly a$, $b \succ a$, $b \parallel c$, $c \parallel b$, $a \succeq a$, $b \succeq b$, $c \succeq c$.}
+  \label{fig:points_domination}
+\end{figure}
+
+Relacijo dominiranosti lahko razširimo tudi na dve množici.
+\begin{definicija}
+Množica $\P$ \textit{dominira} množico $\Q$, če za vsako točko $\textbf{q} \in \Q$ obstaja taka točka $\textbf{p} \in \P$, da $\textbf{p}$ dominira $\textbf{q}$. Potem pišemo $\P \succ \Q$. V primeru, ko je $\Q = \{\textbf{q}\}$, rečemo, da množica $\P$ dominira točko $\textbf{q}$. Na soroden način definiramo tudi \textit{šibko} in \textit{strogo dominaranje} med množicama.
+\end{definicija}
+
+\begin{definicija}
+\textit{Hiperkvader} $H$, s stranicami vzporednimi s koordinatnimi osmi, ki je razpet med točkama $\textbf{r} = (r_1, \dots, r_D)$ in $\textbf{p} = (p_1, \dots, p_D)$, definiramo kot
+\[
+H(\textbf{r}, \textbf{p}) = [r_1, p_1] \times \dots \times [r_D, p_D].
+\]
+\end{definicija}
+
+
+\begin{definicija}
+\textit{Hipervolumen} množice točk $\P$ glede na \textit{referenčno točko} $\textbf{r}$, ki ga označimo s $HV(\P, \textbf{r})$ je definiran kot Lebesguova mera $\lambda (\cdot) $ unije hiperkvadrov $H(\textbf{r}, \textbf{p})$, ki jih določajo točke iz $\textbf{p} \in \P$ in referenčna točka $\textbf{r} = (r_1, \dots, r_D)$. Torej
+\[
+HV(\P, \textbf{r}) = \lambda \left( \bigcup_{\textbf{p} \in \P} H(\textbf{r}, \textbf{p})  \right).
+\]
+Hipervolumna kasneje ne bomo uporabili, vseeno pa smo ga definirali, ker smo ga omenili v uvodu in je relevantni koncept v povezanih delih. 
+Brez škode za splošnost bo tekom celotnega dela referenčna točka $\textbf{r} = (0, \dots, 0)$.
+\end{definicija}
+
+
+\begin{definicija}
+\textit{Dominirano območje} množice točk $\P$ je množica točk $\textbf{z} \in \R^D$, ki dominirajo referenčno točko $\textbf{r} = \textbf{0}$ in jih šibko dominira vsaj ena izmed točk v $\P$.
+\end{definicija}
+
+\begin{definicija}
+\textit{Nedominirano območje} $N(\P)$ množice točk $\P$ je množica točk $\textbf{z} \in \R^D$, ki dominirajo referenčno točko $\textbf{r} = \textbf{0}$ in jih ne strogo dominira nobena izmed točk v $\P$. Matematično to zapišemo kot
+\[
+N(\P) = \{\textbf{z} \in \R^D \mid \textbf{z} \succeq \textbf{0} \land \lnot (\P \ggcurly \textbf{z}) \}. 
+\]
+Primer nedominiranega območja $N(\P)$ za neko množico točk $\P$ v dvokriterijskem prostoru je prikazan na sliki~\ref{fig:nondominated_area}. Presek dominiranega in nedominiranega območja za poljubno množico $\P$, ki vsebuje vsaj eno točko iz $\R^D_{\geq 0}$, je neprazen, saj obe množici vsebujeta rob.
+\end{definicija}
+\begin{figure}[htb]
+  \centering
+  \input{tikz_images/nondominated_area}
+  \caption{Slika prikazuje množico točk $\P = \{\textbf{p}^1, \dots, \textbf{p}^5\}$, nedominirano območje $N(\P)$ ter vpete točke $\V(\P) = \{\textbf{v}^0, \dots, \textbf{v}^5\}$. Del množice $N(\P)$ je tudi rob, označen s črno črto.}
+  \label{fig:nondominated_area}
+\end{figure}
+
+\begin{definicija}
+Množici točk, ki šibko dominira neko točko $\textbf{z} \in \R^D$ rečemo \textit{stožec} in jo označimo s $C(\textbf{z})$. Primer dvodimenzionalnega stožca vidimo na sliki~\ref{fig:cone}.
+\end{definicija}
+\begin{figure}[htb]
+  \centering
+  \input{tikz_images/cone}
+  \caption{Na sliki sta prikazana točka $\textbf{z}$ in pripadajoči stožec $C(\textbf{z})$, označen z oranžnim območjem. Del stožca $C(z)$ je tudi rob, označen s črno črto.}
+  \label{fig:cone}
+\end{figure}
+
+% \vspace{20cm}
+
+
+\begin{definicija}
+Točki $\textbf{v} \in N(\P)$ za katero velja
+\[
+\nexists \textbf{z} \in N(\P): \quad \textbf{v} \succ \textbf{z}
+\]
+rečemo \textit{vpeta točka}. Množico vseh vpetih točk $\textbf{v}$ za neko množico paroma nedominiranih točk $\P$ označimo z $\V(\P)$. Primer množice vpetih točk za množico dvodimenzionalnih točk $\P$ vidimo na sliki~\ref{fig:nondominated_area}.
+
+Tekom dela računamo vpete točke za množice različnih dimenzij. Za to uporabimo različne algoritme, ki jih v nadaljevanju predstavimo. Verjamemo, da množice izračunanih vpetih točk natanko ustrezajo definiciji vpetih točk, vendar tega ne pokažemo. 
+\end{definicija}
+

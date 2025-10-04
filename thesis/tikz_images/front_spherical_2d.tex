@@ -1,0 +1,22 @@
+\begin{tikzpicture}
+  \begin{axis}[
+    xlabel={$f_1$},
+    ylabel={$f_2$},
+    xmin=0, xmax=3.5,
+    ymin=0, ymax=3.5,
+    width=6cm,
+    height=6cm,
+    enlargelimits=true,
+    axis lines=middle,
+    ticks=none
+  ]
+    \addplot[
+      only marks,
+      mark=*,
+      Blues-I
+    ] table [x=x, y=y, col sep=comma] {csv/points_spherical_2D.csv};
+
+      \addplot[Blues-F, line width=2pt] (3,0) arc[start angle=0, end angle=90, radius=3];
+
+  \end{axis}
+\end{tikzpicture}

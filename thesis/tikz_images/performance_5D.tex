@@ -1,0 +1,40 @@
+\begin{tikzpicture}
+\begin{semilogxaxis}[
+    width=7.35cm,
+    height=5.0cm,
+    grid=major,
+    grid style={dashed, gray!20},
+    minor tick num=0,
+    xlabel={$|\P|$},
+    ylabel={Količnik},
+    title={Razmerja hitrosti algoritma (5D)},
+    tick label style={font=\scriptsize},
+    label style={font=\scriptsize},
+    title style={font=\scriptsize},
+    cycle list={
+        {Reds-G, very thick, mark=none},
+        {Blues-G, very thick, mark=none},
+        {Greens-G, very thick, mark=none},
+        {Reds-K, very thick, mark=none},
+        {Blues-K, very thick, mark=none},
+        {Greens-K, very thick, mark=none}
+    },
+]
+
+\addplot table [x=front_size, y=multiplier, col sep=comma] {csv/comparison_worst_case_5D_10.csv};
+
+\addplot table [x=front_size, y=multiplier, col sep=comma] {csv/comparison_linear_5D_10.csv};
+
+\addplot table [x=front_size, y=multiplier, col sep=comma] {csv/comparison_spherical_5D_10.csv};
+
+\addplot table [x=front_size, y=multiplier, col sep=comma] {csv/comparison_worst_case_5D_100.csv};
+
+\addplot table [x=front_size, y=multiplier, col sep=comma] {csv/comparison_linear_5D_100.csv};
+
+\addplot table [x=front_size, y=multiplier, col sep=comma] {csv/comparison_spherical_5D_100.csv};
+
+\draw[dotted] (1,1) -- (1000000,1);
+
+
+\end{semilogxaxis}
+\end{tikzpicture}

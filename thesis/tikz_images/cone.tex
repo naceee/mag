@@ -1,0 +1,21 @@
+\begin{tikzpicture}
+    
+    % Shade the non-dominated area (above and right)
+    \fill[fillcol] 
+        (1.5,5) -- (5,5) -- (5,1) -- (1.5,1)  -- cycle;
+    \node at (3.5,3) {\( C(\textbf{z}) \)};
+
+    % Nondominated points
+    \fill (1.5,1) circle (2pt) node[above right] {\( \textbf{z} \)};
+
+    % Draw axes
+    \draw[->] (0,0) -- (5,0) node[midway, below] {\( f_1 \)};
+    \draw[->] (0,0) -- (0,5) node[midway, left] {\( f_2 \)};
+    
+    \draw (1.5,1) -- (1.5,5);
+    \draw (1.5,1) -- (5,1);
+    
+    % Draw a small dot at the origin
+    \fill (0,0) circle (2pt);
+
+\end{tikzpicture}

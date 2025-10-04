@@ -1,0 +1,28 @@
+\begin{tikzpicture}
+
+    \draw[gray] (0,0) -- (2.8284,2.8284);
+    \draw[gray] (0,0) -- (2.058,3.43) node[midway, above] {\( r \)};
+    
+    \draw[gray] (2.8284,2.8284) -- (3.5, 3.5) node[midway, above, left] {\( r_B \)};
+    \draw[gray] (2.058,3.43) -- (3,5) node[midway, above, left] {\( r_A \)};
+
+    \draw (4,0) arc[start angle=0, end angle=90, radius=4];  
+    \draw (2,2) arc[start angle=45, end angle=59.03, radius=2.828];  
+
+    \draw[gray, dashed] (3,5) -- (3.5, 3.5);
+    \draw[gray, dashed] (2.058,3.43) -- (2.8284,2.8284);
+
+    \draw (1.55,2) node {\( \theta \)};
+
+
+    \fill (3,5) circle (2pt) node[above right] {\( A \)};
+    \fill (3.5, 3.5) circle (2pt) node[above right] {\( B \)};
+
+    \fill (2.058,3.43) circle (2pt) node[above right] {\( A' \)};
+    \fill (2.8284,2.8284) circle (2pt) node[right] {\( B' \)};
+
+
+    % Draw axes
+    \draw[->] (0,0) -- (6,0) node[midway, below] {\( x \)};
+    \draw[->] (0,0) -- (0,6) node[midway, left] {\( y \)};
+\end{tikzpicture}

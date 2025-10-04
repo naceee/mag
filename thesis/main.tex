@@ -1,0 +1,115 @@
+\documentclass[isrm2, tisk]{fmfdelo}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[a-2b]{pdfx}
+% Če pobrišete možnost tisk, bodo povezave obarvane,
+% na začetku pa ne bo praznih strani po naslovu, …
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% METAPODATKI
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% - vaše ime
+\avtor{Nace Sever}
+
+% - naslov dela v slovenščini
+\naslov{Algoritem za izračun razdalje do nedominiranega območja}
+
+% - naslov dela v angleščini
+\title{An algorithm for computing the distance to the nondominated area}
+
+% - ime mentorja/mentorice s polnim nazivom:
+%   - doc.~dr.~Ime Priimek
+%   - izr.~prof.~dr.~Ime Priimek
+%   - prof.~dr.~Ime Priimek
+%   za druge variante uporabite ustrezne ukaze
+\mentor{prof.~dr.~Sergio Cabello Justo}
+\somentorica{doc.~dr.~Tea Tušar}
+% \somentor{...}
+% \mentorica{...}
+% \mentorja{...}{...}
+% \somentorja{...}{...}
+% \mentorici{...}{...}
+% \somentorici{...}{...}
+
+% - leto magisterija
+\letnica{2025}
+
+% - povzetek v slovenščini
+%   V povzetku na kratko opišite vsebinske rezultate dela. Sem ne sodi razlaga
+%   organizacije dela, torej v katerem razdelku je kaj, pač pa le opis vsebine.
+\povzetek{
+V magistrskem delu predstavimo nov algoritem ARRNO za računanje razdalje do nedominiranega območja. Razdalja med dominirano točko in nedominiranim območjem je metrika za razvrščanje dominiranih rešitev pri znanem dvokriterijskem optimizacijskem algoritmu COMO-CMA-ES. Novost algoritma ARRNO je, da omogoča izračun razdalje za tri ali več dimenzionalne točke, medtem ko obstoječi algoritem deluje le za množice dvodimenzionalnih točk.
+
+Algoritem implementiramo v programskem jeziku Python ter eksperimentalno preverimo njegovo pravilnost, prostorsko zahtevnost in časovno zahtevnost na raznovrstnih množicah nedominiranih točk. Za množice tridimenzionalnih točk moči $n$ algoritem doseže časovno zahtevnost $O(n\log n)$, z višanjem dimenzije $D$ pa njegova časovna zahtevnost postane $O(n^{D-1})$. 
+
+Implementacija algoritma za tri in štiridimenzionalne množice je vključena tudi v odprtokodno knjižnico \texttt{moarchiving}, ki omogoča hranjenje množic nedominiranih rešitev in računanje indikatorjev v večkriterijski optimizaciji. Algoritem ARRNO tako omogoča razširitev algoritma COMO-CMA-ES na več kot dva kriterija.
+}
+
+% - povzetek v angleščini
+\abstract{
+In this thesis, we present a new algorithm, ARRNO, for computing the distance to the nondominated area. The distance between a dominated point and the nondominated region is a metric used for ranking dominated solutions in the well-known bi-objective optimization algorithm COMO-CMA-ES. The novelty of ARRNO is that it enables the computation of this distance for points in three or more dimensions, whereas the existing algorithm is limited to sets of two-dimensional points.
+
+The algorithm is implemented in Python, and its correctness and computational complexity are experimentally evaluated on various sets of nondominated points. For three-dimensional point sets of size $n$, ARRNO achieves a time complexity of $O(n\log n)$. For constant dimension $D \geq 4$, the time complexity is $O(n^{D-1})$.
+
+An implementation of the algorithm for three and four-dimensional point sets is also included in the open-source \texttt{moarchiving} library, which provides efficient storage of nondominated solution sets and computation of indicators in multiobjective optimization. ARRNO thus enables the extension of COMO-CMA-ES to optimization problems with more than two objectives.
+}
+
+% - klasifikacijske oznake, ločene z vejicami
+%   Oznake, ki opisujejo področje dela, so dostopne na strani https://www.ams.org/msc/
+\klasifikacija{68W05,68U05,90C29}
+
+% - ključne besede, ki nastopajo v delu, ločene s \sep
+\kljucnebesede{večkriterijska optimizacija\sep računska geometrija\sep dominirane to-čke}
+
+% - angleški prevod ključnih besed
+\keywords{multiobjective optimization\sep computational geometry\sep dominated points}
+
+% - neobvezna zahvala
+\zahvala{
+Zahvaljujem se mentorju, prof.~dr.~Sergiu Cabellu Justu za dragocene nasvete in ure skupnega razmišljanja. Prav tako se zahvaljujem somentorici, doc.~dr.~Tei Tušar, da me je s tako zanimivim problemom seznanila, me tekom dela usmerjala in bila vedno na voljo. 
+Še posebej pa se zahvaljujem svoji družini in punci Lizi za podporo, potrpežljivost in spodbudo.
+}
+
+% - program dela, ki ga napiše mentor z osnovno literaturo
+% \programdela{
+% Predlagajte in implementirajte učinkovit algoritem za izračun razdalje do nedominiranega območja v tri- in večdimenzionalnih prostorih. Eksperimentalno preverite njegovo pravilnost ter časovno in prostorsko zahtevnost.
+% }
+
+% \osnovnaliteratura{
+% % Literatura mora biti tukaj posebej samostojno navedena (po pomembnosti) in ne
+% % le citirana. V tem razdelku literature ne oštevilčimo po svoje, ampak uporabljamo
+% % ukaz \vnosliterature, v katerega vpišemo citat
+%   \vnosliterature{Guerreiro}
+%   \vnosliterature{toure-como-cma-es}
+% }
+
+% - ime datoteke z viri (vključno s končnico .bib), če uporabljate BibTeX
+\literatura{literatura.bib}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% DODATNE DEFINICIJE
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\input{definicije.tex}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% ZAČETEK VSEBINE
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{document}
+
+\input{vsebina/1_uvod}
+
+\input{vsebina/2_večkriterijska_opt}
+
+\input{vsebina/3_reševanje_problema}
+
+\input{vsebina/4_analiza_pravilnosti}
+
+\input{vsebina/5_racunska_zahtevnost}
+
+\input{vsebina/6_zaključek}
+
+\end{document}

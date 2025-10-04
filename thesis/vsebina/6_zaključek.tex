@@ -1,0 +1,9 @@
+\section{Zaključek}
+\label{sec:zakljucek}
+V magistrskem delu smo obravnavali problem računanja razdalje do nedominiranega območja, ki je pomemben del algoritma COMO-CMA-ES za reševanje večkriterijskih optimizacijskih problemov. Do sedaj je obstajal zgolj algoritem za računanje razdalje do nedominiranega območja v dveh dimenzijah, v tem delu pa predstavimo nov algoritem, poimenovan ARRNO, ki deluje za poljubno višjo dimenzijo. S tem smo odprli pot za nadaljnji razvoj algoritmov, kot je COMO-CMA-ES, v višjih dimenzijah.
+
+Algoritem ARRNO temelji na obstoječem dvodimenzionalnem algoritmu, kjer avtorji ugotovijo, da je ključno iskanje vpetih točk. Prav tako se poslužuje tehnike rekurzivnega pometanja, kot jih uporabljata algoritma HV3D+ in HV4D+. Algoritem smo implementirali in vključili v odprtokodno knjižnico \texttt{moarchiving}~\cite{moarchiving}.
+
+Pravilnost algoritma smo potrdili s obsežnim testiranjem, ki smo ga podrobno izpeljali. Poleg tega smo teoretično analizirali prostorsko in časovno zahtevnost algoritma, ki znaša $O(n \log n)$ za probleme v treh dimenzijah in $O(n^{D-1})$ za probleme v več dimenzijah, kjer je $n$ velikost vhodne množice $D$ pa dimenzija problema. Teoretično analizo časovne zahtevnosti smo dopolnili tudi s serijo eksperimentov za različne dimenzije, velikosti in oblike množic točk. Rezultati kažejo, da je algoritem ARRNO za tri in štiridimenzionalne probleme učinkovit in primeren za praktično uporabo, sploh za manjše množice točk.
+
+V prihodnje bi bilo smiselno raziskati možnosti nadaljnje optimizacije algoritma ARRNO, predvsem njegove časovne zahtevnosti za probleme v višjih dimenzijah. Morda obstaja hitrejši algoritem za iskanje vpetih točk ali pa način za omejitev števila vpetih točk, ki jih je potrebno izračunati. Prav tako, bi bilo zanimivo raziskati pristop, ki ne bi temeljil na računanju vpetih točk, ampak bi razdaljo poiskali na kak drug način. 

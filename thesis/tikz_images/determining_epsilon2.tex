@@ -1,0 +1,43 @@
+\begin{tikzpicture}
+    
+    % Shade the non-dominated area (above and right)
+    \fill[fillcol] 
+        (-2,4) -- (-2,3) -- (0,3) -- 
+        (0, 0) -- (3,0) -- 
+        (3, -1) -- (4,-1) -- (4,4) -- cycle;
+    \node at (3,3) {\( N(\P) \)};
+
+
+    % Draw lines from each point (downward and leftward)
+    \draw (0,3) -- (-2,3);  
+    \draw (0,3) -- (0,0);      
+
+    \draw (3,0) -- (0,0);  
+    \draw (3,0) -- (3, -1);  
+
+    
+    \fill (0,3) circle (2pt) node[above right] {\( \textbf{p}^i \)};
+    \fill (3,0) circle (2pt) node[above right] {\( \textbf{p}^{i+1} \)};
+    \fill (0,0) circle (2pt) node[above left] {\( \textbf{v}\)};
+    \fill (-2,-1) circle (2pt) node[above right] {\( \textbf{q} \)};
+    
+    \draw[nodecol, dashed] (-2,-1) -- (1.23606798,-1);  
+    \draw[nodecol, dashed] (-2,-1) -- (-2,2.23606798);  
+    % \draw[nodecol, dashed] (0.23606798,-1) -- (1.23606798,-1) node[midway, above] {$\delta$};
+    \draw[nodecol] (1.23606798,-1) arc[start angle=0, end angle=90, radius=3.23606798];    
+    \draw[blue, dashed] (-2,-1) -- (0,0);
+    % \draw[blue] (0.8944272,0.4472136) -- (0,0) node[midway, above] {$\delta$};
+    \draw[blue] (1, 0) arc[start angle=0, end angle=90, radius=1];    
+    \fill[blue] (0.70710678,0.70710678) circle (1pt) node[left] {$\textbf{s}$};
+    
+    
+    \draw[gray, dashed] (0,0) -- (4,4);
+    \draw[gray, dashed] (-1,-1) -- (0,0) node[midway, right] {\( l \)};
+    \draw[blue, dashed] (0.707106781,0.707106781) circle (0.707106781); 
+
+    \fill[nodecol] (0.73295,0.73295) circle (1pt) node[right] {\( \textbf{s}' \)};
+    \draw[nodecol, dashed]  (0.73295,0.73295) circle (0.707106781);    
+
+
+
+\end{tikzpicture}

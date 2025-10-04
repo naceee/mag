@@ -1,0 +1,55 @@
+\tdplotsetmaincoords{70}{110}
+%
+
+\pgfmathsetmacro{\thetavec}{60}
+\pgfmathsetmacro{\phivec}{90}
+%
+\begin{tikzpicture}[scale=4,tdplot_main_coords]
+\coordinate (O) at (0,0,0);
+\draw[-stealth] (0,0,0) -- (1.2,0,0) node[anchor=north east]{$x$};
+\draw[-stealth](0,0,0) -- (0,1.2,0) node[anchor=north west]{$y$};
+\draw[-stealth] (0,0,0) -- (0,0,1.2) node[anchor=south]{$z$};
+
+
+
+\tdplotsetcoord{P1}{1}{80}{90}
+\tdplotdrawarc{(0,0,{sin(10)})}{{cos(10)}}{0}{90}{}{};
+
+\coordinate (O1) at (0,0,{sin(10)});
+\foreach \angle in {90, 80, 70, 60, 50, 40, 30, 20, 10, 0} {
+    \tdplotsetcoord{Q1}{1}{80}{\angle}
+    \draw[gray, dashed] (O1) -- (Q1);
+    \fill (Q1) circle (0.7pt);
+}
+
+
+\tdplotsetcoord{P3}{1}{30}{90}
+\tdplotdrawarc{(0,0,{sin(60)})}{{cos(60)}}{0}{90}{}{};
+
+\coordinate (O2) at (0,0,{sin(60)});
+\foreach \angle in {90, 72, 54, 36, 18, 0} {
+    \tdplotsetcoord{Q1}{1}{30}{\angle}
+    \draw[gray, dashed] (O2) -- (Q1);
+    \fill (Q1) circle (0.7pt);
+}
+
+
+
+
+
+
+
+
+
+\tdplotsetthetaplanecoords{\phivec}
+% \tdplotdrawarc[tdplot_rotated_coords]{(0,0,0)}{0.5}{80}%
+% {90}{anchor=west}{$d\phi_1$}
+\draw[gray, dashed,tdplot_rotated_coords] (1,0,0) arc (0:90:1);
+
+\draw[gray, dashed] (1,0,0) arc (0:90:1);
+
+\tdplotsetthetaplanecoords{0}
+\draw[gray, dashed,tdplot_rotated_coords] (1,0,0) arc (0:90:1);
+
+
+\end{tikzpicture}

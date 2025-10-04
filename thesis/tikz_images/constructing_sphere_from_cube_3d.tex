@@ -1,0 +1,58 @@
+\tdplotsetmaincoords{70}{110}
+
+\begin{tikzpicture}[scale=4,tdplot_main_coords]
+\coordinate (O) at (0,0,0);
+\draw[-stealth] (0,0,0) -- (1.2,0,0) node[anchor=north east]{$x$};
+\draw[-stealth](0,0,0) -- (0,1.2,0) node[anchor=north west]{$y$};
+\draw[-stealth] (0,0,0) -- (0,0,1.2) node[anchor=south]{$z$};
+
+\draw[gray] (1,0,0) -- (1,1,0);
+\draw[gray] (1,0,0) -- (1,0,1);
+\draw[gray] (0,1,0) -- (1,1,0);
+\draw[gray] (0,1,0) -- (0,1,1);
+\draw[gray] (0,0,1) -- (1,0,1);
+\draw[gray] (0,0,1) -- (0,1,1);
+\draw[gray] (1,1,1) -- (0,1,1);
+\draw[gray] (1,1,1) -- (1,0,1);
+\draw[gray] (1,1,1) -- (1,1,0);
+
+\foreach \x in {0,0.2,0.4,0.6,0.8,1} {
+    \foreach \y in {0,0.2,0.4,0.6,0.8,1} {
+        %\fill[gray] (\x,\y,1) circle (0.4pt);
+        %\fill[gray] (\x,1,\y) circle (0.4pt);
+        %\fill[gray] (1,\x,\y) circle (0.4pt);
+        
+        \pgfmathsetmacro{\r}{sqrt(\x*\x + \y*\y + 1)}
+        \pgfmathsetmacro{\projx}{\x / \r}
+        \pgfmathsetmacro{\projy}{\y / \r}
+        \pgfmathsetmacro{\projz}{1 / \r}
+
+        \draw[gray] (\projx,\projy,\projz) -- (\x,\y,1);
+        \draw[gray] (\projx,\projz,\projy) -- (\x,1,\y);
+        \draw[gray] (\projz,\projx,\projy) -- (1,\x,\y);
+
+        \fill (\projx,\projy,\projz) circle (0.4pt);
+        \fill (\projx,\projz,\projy) circle (0.4pt);
+        \fill (\projz,\projx,\projy) circle (0.4pt);
+
+        
+    }
+}
+
+
+
+
+
+
+\tdplotsetthetaplanecoords{90}
+% \tdplotdrawarc[tdplot_rotated_coords]{(0,0,0)}{0.5}{80}%
+% {90}{anchor=west}{$d\phi_1$}
+\draw[gray, dashed,tdplot_rotated_coords] (1,0,0) arc (0:90:1);
+
+\draw[gray, dashed] (1,0,0) arc (0:90:1);
+
+\tdplotsetthetaplanecoords{0}
+\draw[gray, dashed,tdplot_rotated_coords] (1,0,0) arc (0:90:1);
+
+
+\end{tikzpicture}

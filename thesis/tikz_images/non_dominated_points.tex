@@ -1,0 +1,15 @@
+\begin{tikzpicture}
+    % Draw axes
+    \draw[->] (0,0) -- (5,0) node[midway, below] {\( x_1 \)};
+    \draw[->] (0,0) -- (0,5) node[midway, left] {\( x_2 \)};
+    
+    % Draw a small dot at the origin
+    \fill (0,0) circle (2pt);
+    
+    % Nondominated points
+    \fill (0.5,4) circle (2pt) node[above right] {\( p^1 \)};
+    \fill (1.5,2.5) circle (2pt) node[above right] {\( p^2 \)};
+    \fill (2,2) circle (2pt) node[above right] {\( p^3 \)};
+    \fill (3.5,1.5) circle (2pt) node[above right] {\( p^4 \)};
+    \fill (4, 0.5) circle (2pt) node[above right] {\( p^5 \)};
+\end{tikzpicture}

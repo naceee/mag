@@ -1,0 +1,69 @@
+\begin{tikzpicture}
+\begin{loglogaxis}[
+    width=11.5cm,
+    height=8cm,
+    grid=major,
+    grid style={dashed, gray!25},
+    minor tick num=0,
+    title={Povprečna hitrost algoritma pri različnih dimenzijah in oblikah fronte},
+    xlabel={$|\P|$},
+    ylabel={Čas [s]},
+    legend style={at={(1.05,1)}, anchor=north west},
+    legend cell align={left},
+    cycle list={
+        {Reds-F, very thick, mark=none},
+        {Reds-H, very thick, mark=none},
+        {Reds-J, very thick, mark=none},
+        {Reds-L, very thick, mark=none},
+        {Blues-F, very thick, mark=none},
+        {Blues-H, very thick, mark=none},
+        {Blues-J, very thick, mark=none},
+        {Blues-L, very thick, mark=none},
+        {Greens-F, very thick, mark=none},
+        {Greens-H, very thick, mark=none},
+        {Greens-J, very thick, mark=none},
+        {Greens-L, very thick, mark=none}
+    }
+]
+
+% Plots will automatically cycle through the defined colors
+\addplot table [x=front_size, y=mean, col sep=comma] {csv/time_worst_case_3D_1.csv};
+\addlegendentry{zah 3D}
+
+\addplot table [x=front_size, y=mean, col sep=comma] {csv/time_worst_case_4D_1.csv};
+\addlegendentry{zah 4D}
+
+\addplot table [x=front_size, y=mean, col sep=comma] {csv/time_worst_case_5D_1.csv};
+\addlegendentry{zah 5D}
+
+\addplot table [x=front_size, y=mean, col sep=comma] {csv/time_worst_case_6D_1.csv};
+\addlegendentry{zah 6D}
+
+\addplot table [x=front_size, y=mean, col sep=comma] {csv/time_spherical_3D_1.csv};
+\addlegendentry{sfer 3D}
+
+\addplot table [x=front_size, y=mean, col sep=comma] {csv/time_spherical_4D_1.csv};
+\addlegendentry{sfer 4D}
+
+\addplot table [x=front_size, y=mean, col sep=comma] {csv/time_spherical_5D_1.csv};
+\addlegendentry{sfer 5D}
+
+\addplot table [x=front_size, y=mean, col sep=comma] {csv/time_spherical_6D_1.csv};
+\addlegendentry{sfer 6D}
+
+\addplot table [x=front_size, y=mean, col sep=comma] {csv/time_linear_3D_1.csv};
+\addlegendentry{lin 3D}
+
+\addplot table [x=front_size, y=mean, col sep=comma] {csv/time_linear_4D_1.csv};
+\addlegendentry{lin 4D}
+
+\addplot table [x=front_size, y=mean, col sep=comma] {csv/time_linear_5D_1.csv};
+\addlegendentry{lin 5D}
+
+\addplot table [x=front_size, y=mean, col sep=comma] {csv/time_linear_6D_1.csv};
+\addlegendentry{lin 6D}
+
+
+
+\end{loglogaxis}
+\end{tikzpicture}

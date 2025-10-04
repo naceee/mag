@@ -2,7 +2,7 @@ import unittest
 import numpy as np
 from scipy.spatial import cKDTree
 
-from point_sampling import epsilon_net, spherical_front
+from point_sampling import epsilon_net, spherical_front, epsilon_net_from_square
 
 
 class MyTestCase(unittest.TestCase):
@@ -11,7 +11,7 @@ class MyTestCase(unittest.TestCase):
         for d in range(2, 7):
             h = 0.1
             r = 5
-            net = epsilon_net(r, h, d)
+            net = epsilon_net_from_square(r, h, d)
             print(f"Max min dist for {d}D ({len(net)} points):", end=" ")
 
             pts = spherical_front(r, 1000 * 2 ** d, d)

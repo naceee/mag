@@ -1,0 +1,75 @@
+% naložite dodatne pakete, ki jih potrebujete
+\usepackage{units}        % fizikalne enote kot \unit[12]{kg} s polovico nedeljivega presledka, glej primer v kodi
+\usepackage{graphicx}     % za slike
+\usepackage{tikz}
+\usepackage{tikz-3dplot}
+\usepackage{subcaption}
+\usepackage{amssymb}
+\usepackage{ marvosym }
+% VEČ ZANIMIVIH PAKETOV
+% \usepackage{array}      % več možnosti za tabele
+% \usepackage[list=true,listformat=simple]{subcaption}  % več kot ena slika na figure, omogoči slika 1a, slika 1b
+% \usepackage[all]{xy}    % diagrami
+% \usepackage{doi}        % za clickable DOI entrye v bibliografiji
+% \usepackage{enumerate}     % več možnosti za sezname
+
+% Za barvanje source kode
+% \usepackage{minted}
+% \renewcommand\listingscaption{Program}
+
+% Za pisanje psevdokode
+\usepackage[noend]{algpseudocode}  % za psevdokodo
+\usepackage{algorithm}
+\floatname{algorithm}{Algoritem}
+\renewcommand{\listalgorithmname}{Kazalo algoritmov}
+
+\makeatletter
+\renewcommand{\alglinenumber}[1]{\footnotesize\textcolor{gray}{#1}}
+\makeatother
+
+% deklarirajte vse matematične operatorje, da jih bo LaTeX pravilno stavil
+% \DeclareMathOperator{\...}{...}
+
+% vstavite svoje definicije ...
+\newcommand{\R}{\mathbb R}
+\newcommand{\N}{\mathbb N}
+\newcommand{\Z}{\mathbb Z}
+% Lahko se zgodi, da je ukaz \C definiral že paket hyperref,
+% zato dobite napako: Command \C already defined.
+% V tem primeru namesto ukaza \newcommand uporabite \renewcommand
+\newcommand{\C}{\mathbb C}
+\newcommand{\Q}{\mathcal Q}
+\newcommand{\V}{\mathcal V}
+\renewcommand{\P}{\mathcal P}
+\renewcommand{\sp}{S_{\text{p}}}
+\newcommand{\sv}{S_{\text{v}}}
+
+% vsako poglavje na svoji strani
+\AddToHook{cmd/section/before}{\clearpage}
+% todoji z rdečo barvo
+\usepackage[dvipsnames]{xcolor}
+\newcommand{\todo}[1]{{\color{RubineRed}TODO: #1}}
+\newcommand{\tea}[1]{\textcolor{Orange}{[Tea]: #1}}
+\newcommand{\nace}[1]{\textcolor{Blue}{[Nace]: #1}}
+\newcommand{\sergio}[1]{\textcolor{ForestGreen}{[Sergio]: #1}}
+
+\definecolor{fillcol}{RGB}{254,227,145}
+\definecolor{nodecol}{RGB}{204,76,2}
+\definecolor{nodecol2}{RGB}{254,153,41}
+
+\usepackage{enumitem}
+
+\usepackage{pgfplots}
+\usepackage{pgfplotstable}
+\usepgfplotslibrary{colorbrewer}
+\pgfplotsset{compat=1.18}
+
+\DeclareFontFamily{U}{mathb}{\hyphenchar\font45}
+\DeclareFontShape{U}{mathb}{m}{n}{
+<-6> mathb5 <6-7> mathb6 <7-8> mathb7
+<8-9> mathb8 <9-10> mathb9
+<10-12> mathb10 <12-> mathb12
+}{}
+\DeclareSymbolFont{mathb}{U}{mathb}{m}{n}
+\DeclareMathSymbol{\llcurly}{\mathrel}{mathb}{"CE}
+\DeclareMathSymbol{\ggcurly}{\mathrel}{mathb}{"CF}

@@ -1,0 +1,224 @@
+\section{Računska zahtevnost}
+\label{sec:racunska_zahtevnost}
+V tem poglavju podrobno analiziramo računsko zahtevnost algoritma v odvisnosti od velikosti množice nedominiranih točk $n = |\P|$ ter dimenzije problema $D$. Za lažjo analizo predpostavljamo, da je dimenzija $D$ konstanta, torej da lahko namesto $O(D)$ pišemo $O(1)$\footnote{Seveda pa dimenzije $D$ ne zanemarimo, ko ta nastopa v eksponentu.}. Predpostavka je smiselna, saj je računanje enostavnejših indikatorjev pri visokih dimenzijah zelo zamudno, tako da se v praksi le redko srečamo z več kot nekaj kriteriji. 
+
+Najprej teoretično analiziramo časovno ter prostorsko zahtevnost, nato pa hitrost algoritma tudi testiramo za probleme dimenzij od 3 do 6, na množicah točk različnih velikost in oblik. Na koncu analiziramo še scenarij, kjer je algoritmu za množico paroma nedominiranih točk $\P$ danih več točk poizvedbe $\Q = \{\textbf{q}^1, \dots, \textbf{q}^m \}$ naenkrat. 
+
+\subsection{Teoretična analiza časovne zahtevnosti}
+\begin{izrek}
+Algoritem ARRNO za računanje razdalje med nedominiranim območjem $N(\P)$ in točko poizvedbe $\textbf{q}$, ima časovno zahtevnost $O(n \log n)$ za $D=3$ in $O(n^{D-1})$ za $D \geq 4$, kjer je $n = |\P|$ in $D$ dimenzija prostora.
+\end{izrek}
+Časovna zahtevnost algoritma ARRNO je sestavljena iz časovne zahtevnosti računanja množice vpetih točk $\V$ ter časovne zahtevnosti iskanja razdalje do najbližjega stožca, ki ga razpenjajo vpete točke. Naj bo število vpetih točk enako $v$. Potem očitno poiščemo najbližji stožec v $O(v)$. Ker pa smo pri konstrukciji vpetih točk gotovo konstruirali vsako izmed njih, je časovna zahtevnost iskanja vpetih točk vsaj $O(v)$. Torej zadošča izračunati časovno zahtevnost algoritma \Call{Vpete točke}{$\P$}. Vseeno pa najprej pokažimo, kolikšno je maksimalno število vpetih točk $\V$, glede na dimenzijo problema. 
+
+\begin{trditev}
+\label{sec:st_vpetih_tock}
+Za dimenzijo $D=2, 3$ je število vpetih točk $O(n)$, kjer je $n = |\P|$. Za $D=4$ je število vpetih točk $O(n^2)$ in obstajajo take množice točk $\P$, za katere je število vpetih točk $\Omega(n^2)$. Za $D > 4$ je število vpetih točk $O(n^{D-2})$.
+\end{trditev}
+
+\begin{dokaz}
+V algoritmu \Call{Vpete točke 3D}{$\P$}, za računanje vpetih točk v treh dimenzijah, na vsakem koraku zanke (algoritem \ref{alg:vpete_tocke_3d}, vrstice 6--16) v stanje $\sv$ dodamo največ dve točki. Skupaj s točko $(0, 0)$, ki je v množici $\sv$ od začetka, torej v $\sv$ dodamo največ $2n + 1$ točk. Ker vpete točke računamo tako, da jih postopoma odstranjujemo iz $\sv$, bo tudi vpetih točk največ $2n + 1$. 
+    
+Kadar rešujemo problem v štirih dimenzijah  (algoritem \ref{alg:vpete_tocke}, vrstica 14), $n$-krat dodamo vpete točke tridimenzionalnega podproblema. Torej je vpetih točk v štirih dimenzijah največ
+\[
+1 + \sum_{i=1}^n 2i + 1 = (n + 1) + 2 \sum_{i=1}^n i = (n + 1) + n(n + 1) = (n + 1)^2 = O(n^2).
+\] 
+Da je kvadratično število vpetih točk v štirih dimenzijah res tesna meja, pokažemo na primeru. Sestavimo tak primer, kjer pri dodajanju prve polovice točk vsakič dobimo konstantno število vpetih točk, pri dodajanju druge polovice točk, pa vsakič linearno število novih vpetih točk. Tak primer je na primer množica točk
+\[
+\left \{(i + 1, \frac{n}{2} - i, n - i, n - i) \mid  i = 0, 1, \dots \frac{n}{2} - 1 \right \},
+\]
+za prvo polovico točk, ter 
+\[
+\left \{(n - i, n - i, i + 1, \frac{n}{2} - i) \mid  i = 0, 1, \dots \frac{n}{2} - 1 \right \},
+\]
+za drugo polovico točk. Na sliki~\ref{fig:example4d} vidimo vizualizacijo tridimenzionalnega stanja $\sp$ za primer $n = 6$ po dodajanju prvih treh, štirih, petih in šestih točk. 
+
+\begin{figure}[ht]
+    \centering
+    \begin{subfigure}{0.495\textwidth}
+        \centering
+        \input{tikz_images/example4d_1}
+        \caption{Stanje po dodajanju tretje točke.}
+        \label{example4d_1}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}{0.495\textwidth}
+        \centering
+        \input{tikz_images/example4d_2}
+        \caption{Stanje po dodajanju četrte točke.}
+        \label{example4d_2}
+    \end{subfigure}
+
+    \vspace{0.5cm}
+
+    \begin{subfigure}{0.495\textwidth}
+        \centering
+        \input{tikz_images/example4d_3}
+        \caption{Stanje po dodajanju pete točke.}
+        \label{example4d_3}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}{0.495\textwidth}
+        \centering
+        \input{tikz_images/example4d_4}
+        \caption{Stanje po dodajanju šeste točke.}
+        \label{example4d_4}
+    \end{subfigure}
+
+    \caption{Vizualizacija stanja $\sp$ po dodajanju točk iz $\P$. S črno barvo so označene točke v $\sp$, z oranžno barvo pa novonastale vpete točke pri dodajanju zadnje točke v $\sp$. Pri dodajanju prvih $\frac{n}{2}$ točk vsakič nastanejo tri nove vpete točke, kot vidimo na sliki~\ref{example4d_1}. Pri dodajanju druge polovice točk, pa vsakič nastane $(\frac{n}{2} + 1) + 2$ novih vpetih točk, kot vidimo na slikah~\ref{example4d_2},~\ref{example4d_3} in~\ref{example4d_4}.}
+    \label{fig:example4d}
+\end{figure}
+
+Podobno kot za število vpetih točk v štirih dimenzijah, lahko tudi za dimenzije $D > 4$ pokažemo, da je vpetih točk največ $O(n^{D-2})$. Ne vemo pa, ali je ta zgornja meja tesna. Glede na to, da je število vpetih točk v dveh in treh dimenzijah linearno, bi bilo prav tako mogoče, da je vpetih točk $O(n^{\lfloor \frac{D}{2} \rfloor})$. Taka meja se pojavi pri problemu Kleejeve mere~\cite{Bringmann}, torej računanja volumna unije kvadrov vzporednih z koordinatnimi osmi.
+\end{dokaz}
+
+\subsubsection{Časovna zahtevnost v treh dimenzijah} 
+Najprej si oglejmo algoritem \Call{Vpete točke 3d}{$\P$} (algoritem \ref{alg:vpete_tocke_3d}).
+Za inicializacijo struktur $\V$, $\sp$, $\sv$ in $h$ porabimo konstanten čas. Množico $\V$ implementiramo kot seznam, stanji $\sp$ in $\sv$ kot urejen seznam, ki podpira dodajanje in iskanje v logaritemskem času~\cite{sortedcontainers}, $h$ pa kot zgoščevalno funkcijo.
+
+Nato v zanki (vrstice 6--16) $n$-krat izvedemo več ukazov. Funkcija \Call{Odstrani dominirane}{$\sv, \overline{\textbf{p}}$} z bisekcijo poišče prvi ter zadnji dominiran element, nato pa ju odstrani in vrne, skupaj z vsemi elementi seznama vmes. Torej je zahtevnost funkcije enaka $O(\log|\sv| + k)$, kjer je $k$ število dominiranih točk v $\sv$. Ker je vsaka točka iz množice $\sv$ odstranjena le enkrat in bo vseh vpetih točk največ $O(n)$, bo po $n$ iteracijah skupna časovna zahtevnost funkcije enaka $O(n \log n)$. 
+Podobno se tudi notranjost naslednje zanke (vrstice 9--10), skozi vse iteracije zunanje zanke, izvede le $O(n)$-krat. Znotraj zanke so vse operacije konstantne, torej je skupna časovna zahtevnost vrstic 8--10, skozi celotno delovanje algoritma, enaka $O(n)$. 
+V vrstici 11 stanju $\sp$ dodamo novo točko, kar naredimo v $O(\log|\sp|) = O(\log n)$, saj je stanje $\sp$ vedno manjše od števila točk $n$. 
+Prav tako v logaritemskem času izračunamo tudi novi vpeti točki, za izračun potrebujemo le indeks elementa $\overline{\textbf{p}}$ v množici $\sp$, nato pa točki izračunamo s pomočjo sosednjih elementov v seznamu. 
+Ker je iskanje in nastavljanje elementa v zgoščevalni funkciji v povprečju konstantno, se tudi vrstice 13--15 izvedejo v konstantnem času, dodajanje v stanje $\sv$ pa zopet porabi $O(\log n)$. Torej za celotno zanko for (vrstice 6--16) algoritem porabi $O(n \log n)$ časa. 
+Na koncu le še poskrbimo za preostale točke v $\sv$, za katere pa smo že pokazali, da jih je največ $O(n)$. 
+
+Torej je skupna časovna zahtevnost algoritma za iskanje vpetih točk v treh dimenzijah (ter potem tudi algoritma ARRNO v treh dimenzijah) $O(n \log n)$.
+
+\subsubsection{Časovna zahtevnost v višjih dimenzijah}
+Naj bo $T(n, D)$ čas, ki ga porabi algoritem za vhodno množico $|\P| = n$ in dimenzijo $D$. Pokazali smo že, da je $T(n, 3) = O(n \log n)$, zdaj pa bi radi izračunali $T(n, D)$ še za poljubno dimenzijo $D > 3$.
+
+Tudi v višjih dimenzijah za inicializacijo stanj potrebujemo konstanten čas, časovno najbolj zahtevne operacije, pa se zgodijo znotraj glavne zanke algoritma \ref{alg:vpete_tocke}. Funkcijo \Call{Odstrani Dominirane}{$\sv, \overline{\textbf{p}}$}, kličemo $n$ krat in potrebuje linearno časovno zahtevnost v odvisnosti od števila točk v $\sv$. Ker je število točk v $\sv$ omejeno z $O(n^{D-2})$, je časovna zahtevnost funkcije v najslabšem primeru $O(n^{D-1})$. Po enakem razmisleku kot v algoritmu treh dimenzij, algoritem za vrstice 10--12 porabi $O(n^{D-2})$ časa. Za dodajanje točke $\overline{\textbf{p}}$ v stanje $\sp$, skupaj z odstranjevanjem dominiranih točk pa je na vsakem koraku potrebno $O(n)$ časa, torej skupaj $O(n^2)$. Računanje novih vpetih točk in dodajanje točk v zgoščevalno funkcijo $h$ v vrsticah 14--17, pa ima znotraj vsake ponovitve časovno zahtevnost $T(n, D-1)$. Za dodajanje preostalih točk iz $\sv$ v $\V(\P)$ pa je potrebno največ $O(n^{D-2})$ časa, kolikor je možnih točk v $\sv$. Torej velja
+\[
+T(n, D) = O(n^{D-1}) + n T(n, D-1).
+\]
+Za $D = 4$ torej velja
+\[
+T(n, 4) = O(n^{3}) + O(n^2 \log n) = O(n^3),
+\]
+za splošen $D \geq 4$ pa
+\[
+T(n, D) = O(n^{D-1}).
+\]
+
+\subsection{Analiza prostorske zahtevnosti}
+Za analizo prostorske zahtevnosti algoritma, spremljamo strukture $\P$ $\V$, $\overline{\V}$, $\sp$, $\sv$ in $h$ tekom algoritma. Vse ostale spremenljivke zasedajo konstantno veliko prostora. Vhodna množica $\P$ je velikosti $O(n)$, kakor tudi stanje $\sp$, ki se inicializira prazno, na koncu pa ima največ $O(n)$ točk. Za izhodno množico vpetih točk smo v trditvi~\ref{sec:st_vpetih_tock} pokazali da vsebuje največ $O(n^{D-2})$ točk, množica $\overline{\V}$ pa $O(n^{D-3})$ točk, saj predstavlja vpete točke problema v nižji dimenziji. Enako kot $\V$ potrebujeta tudi stanje $\sv$ in zgoščevalna funkcija $h$ največ $O(n^{D-2})$ prostora. 
+
+Upoštevati je potrebno tudi prostor, ki ga zasede tudi klicanje rekurzivne funkcije. Znotraj funkcije sicer $n$ krat rekurzivno kličemo funkcijo z nižjo dimenzijo, vendar se hkrati izvaja vedno največ en klic funkcije za vsako dimenzijo $D \geq 3$. Torej je skupna prostorska zahtevnost enaka
+\[
+\sum_{i=3}^D O(n^{i-2}) = O(n^{D-2}).
+\]
+
+\subsection{Eksperimentalna analiza časovne zahtevnosti}
+Za ovrednotenje hitrosti algoritma ARRNO izvedemo serijo poskusov pri dimenzijah problema 3, 4, 5 in 6. Testiranje algoritma pri višjih dimenzijah problema je zaradi eksponentne časovne zahtevnosti dolgotrajno, prav tako pa za to tudi ni prave motivacije, saj se z večkriterijsko optimizacijo s tolikšnim številom kriterijev v praksi srečamo redko. 
+
+Testne instance ustvarimo tako, da čim bolj posnemajo scenarij večkriterijske optimizacije, kjer skozi proces optimizacije dobivamo množico paroma nedominiranih točk, ki ji rečemo fronta. Dva primera takih front, ki se pogosto pojavita v raziskavah in se enostavno generalizirata na poljubno število dimenzij sta sferična ter linearna fronta~\cite{Tusar15tevc}. Prav tako pa ustvarimo tudi poseben primer fronte, za katero pričakujemo, da je za algoritem najbolj časovno zahtevna. 
+
+\subsubsection{Linearna fronta}
+Linearna fronta je sestavljena iz točk, ki ležijo na hiperravnini v pozitivnem delu koordinatnega sistema in predstavlja primer večkriterijskega problema z linearnim kompromisom med kriteriji. Primera front v dveh in treh dimenzijah vidimo na sliki~\ref{fig:linear_front}.
+
+\begin{figure}[th]
+    \centering
+    \begin{subfigure}{0.45\textwidth}
+        \centering
+        \input{tikz_images/front_linear_2d}
+        \caption{Primer linearne fronte z 20 točkami v dveh dimenzijah.}
+        \label{fig:front_linear_2d}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}{0.45\textwidth}
+        \centering
+        \input{tikz_images/front_linear_3d}
+        \caption{Primer linearne fronte z 200 točkami v treh dimenzijah.}
+        \label{fig:front_linear_3d}
+    \end{subfigure}
+    \caption{Primera linearne fronte v dveh dimenzijah na levi in treh dimenzijah na desni.}
+    \label{fig:linear_front}
+\end{figure}
+
+\subsubsection{Sferična fronta}
+Sferična fronta je sestavljena iz točk, ki ležijo na sferi s središčem v izhodišču. Primera front v dveh in treh dimenzijah vidimo na sliki~\ref{fig:spherical_front}.
+\begin{figure}[th]
+    \begin{subfigure}{0.45\textwidth}
+        \centering
+        \input{tikz_images/front_spherical_2d}
+        \caption{Primer sferične fronte z 20 točkami v dveh dimenzijah.}
+        \label{fig:front_spherical_2d}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}{0.45\textwidth}
+        \centering
+        \input{tikz_images/front_spherical_3d}
+        \caption{Primer sferične fronte z 200 točkami v treh dimenzijah.}
+        \label{fig:front_spherical_3d}
+    \end{subfigure}
+    \caption{Primera sferične fronte v dveh dimenzijah na levi in treh dimenzijah na desni.}
+    \label{fig:spherical_front}
+\end{figure}
+
+\subsubsection{Algoritmično zahtevna fronta} 
+Za testiranje ustvarimo tudi fronto, za katero velja, da je projekcija točk na prvih $D-1$ koordinat paroma nedominiranih. Intuicija, zakaj naj bi bila taka fronta najtežja za algoritem, je, da bosta imeli stanji $\sp$ in $\sv$ tekom delovanja algoritma vedno več točk. Sestavimo jo tako, da točkam iz linearne fronte z eno manjšo dimenzijo dodamo naključno zadnjo koordinato. Taka definicija je smiselna le za $D \geq 3$, saj množica enodimenzionalnih točk ne more biti paroma nedominiranih. Primer fronte v treh dimenzijah vidimo na sliki~\ref{fig:front_worst_case}.
+\begin{figure}[th]
+    \centering
+    \input{tikz_images/front_worst_case_3d}
+    \caption{Primer algoritmično zahtevne fronte z 200 točkami v treh dimenzijah.}
+    \label{fig:front_worst_case}
+\end{figure}
+
+
+\subsubsection{Okolje poskusov}
+Algoritem implementiramo v programskem jeziku Python 3.10. Poskuse izvedemo na računalniku z operacijskim sistemom Windows z 2,40 GHz procesorjem Intel Core i7-12800H s 14 jedri in 32 GB pomnilnika RAM.
+
+\subsubsection{Rezultati poskusov}
+Algoritem testiramo na linearni in sferični fronti v dimenzijah 3, 4, 5 in 6. Za naključno ustvarjeno fronto $\P$ in naključno izbrano točko $\textbf{q} \succeq 0$, $\textbf{q} \notin N(\P)$, merimo čas, ki ga algoritem porabi za izračun razdalje do nedominiranega območja. Začnemo z množico $\P$, ki vsebuje le eno točko, nato pa velikost množice podvajamo, dokler algoritem za računanje ne porabi več kot 60 sekund. Pri vsaki velikosti množice $\P$ eksperiment ponovimo desetkrat, vsakič z novo fronto in novo točko, da dobimo čim bolj robustno oceno časovne zahtevnosti. 
+\begin{figure}[htb]
+    \centering
+    \input{tikz_images/performance}
+    \caption{Graf prikazuje hitrost algoritma v odvisnosti od velikosti množice $\P$. Z odtenki rdeče barve so prikazani povprečni časi testiranja na zahtevni fronti, z odtenki modre povprečni časi na sferični fronti, z odtenki zelene pa časi na linearni fronti. Rezultati so prikazani za fronte od dimenzije 3 z najsvetlejšim odtenkom, do fronte dimenzije 6 z najtemnejšim odtenkom.}
+    \label{fig:performance}
+\end{figure}
+
+Rezultate prikažemo na sliki~\ref{fig:performance}. Opazimo, da algoritem, posebno na problemih v treh in štirih dimenzijah, deluje počasneje za zahtevno fronto kot za linearno ter sferično fronto. Prav tako je očitno, da se z višjo dimenzijo zahtevnost problema veča. Vidimo, da algoritem na problemu v treh dimenzijah deluje zelo hitro, predvsem za linearno in sferično fronto. Tudi algoritem za reševanje problema v štirih dimenzijah deluje razmeroma hitro in je v praksi uporaben za množice do okrog 1000 točk. Za računanje razdalje v petih ali šestih dimenzijah pa algoritem že pri množici $\P$ s sto točkami potrebuje nekaj sekund. Za množice z več točkami ali višje dimenzije pa bi algoritem verjetno potreboval že več minut časa. 
+
+Do zdaj smo obravnavali primer računanja razdalje ene točke $\textbf{q}$ do nedominiranega območja $N(\P)$. Vendar pa je motivacija za algoritem ARRNO v uporabi za urejanje dominiranih rešitev pri algoritmu COMO-CMA-ES, kjer računamo razdaljo za več dominiranih točk $\textbf{q}_1, \dots, \textbf{q}_m$ do nedominiranega območja $N(\P)$ naenkrat. V tem primeru lahko vpete točke izračunamo le enkrat, za vsako točko $\textbf{q}$ pa izračunamo le razdaljo do vseh stožcev definiranih z vpetimi točkami. Zato poskuse ponovimo še enkrat, le da tokrat računamo razdaljo za množice poizvedbenih točk velikosti 10 in 100. Porabljen čas algoritma primerjamo s časom porabljenim za eno točko in rezultate prikažemo na sliki~\ref{fig:performance_mulitple}. 
+\begin{figure}[htb]
+    \centering
+    \begin{subfigure}{0.49\textwidth}
+        \centering
+        \input{tikz_images/performance_3D}
+        %\caption{caption 1}
+        %\label{fig:performance_3D}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}{0.49\textwidth}
+        \centering
+        \input{tikz_images/performance_4D} 
+        %\caption{caption 2}
+        %\label{fig:performance_4D}
+    \end{subfigure}
+
+    \vspace{0.5cm}
+
+    \begin{subfigure}{0.49\textwidth}
+        \centering
+        \input{tikz_images/performance_5D}
+        %\caption{caption 1}
+        %\label{fig:performance_5D}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}{0.49\textwidth}
+        \centering
+        \input{tikz_images/performance_6D} 
+        %\caption{caption 2}
+        %\label{fig:performance_6D}
+    \end{subfigure}
+
+    % Legend added only once
+    \ref{plots:sharedlegend}
+
+    \caption{Grafi prikazujejo kolikokrat počasnejši je čas algoritma, kadar računamo razdaljo za deset poizvedbenih točk (s svetlejšo barvo) oziroma sto poizvedbenih točk (s temnejšo barvo) v primerjavi s časom algoritma za eno dano poizvedbeno točko. Z odtenki rdeče barve so prikazani rezultati na zahtevni fronti, z modrimi odtenki rezultati na linearni fronti, z zelenimi pa na sferični fronti.}
+    \label{fig:performance_mulitple}
+\end{figure}
+
+\vspace{40pt} % ne znam drugače ...
+Na grafih vidimo, da računanje razdalje do desetih oziroma stotih točk, ni desetkrat oziroma stokrat počasnejše kot računanje razdalje do ene točke. Opazimo tudi, da z naraščajočim številom točk v množici $\P$, količnik pada proti ena, torej vedno večji delež zahtevnosti algoritma postaja iskanje vpetih točk in ne računanje razdalje do njih. 
+

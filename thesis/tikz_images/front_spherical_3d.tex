@@ -1,0 +1,64 @@
+\begin{tikzpicture}
+  \begin{axis}[
+    view={100}{25},
+    xlabel={$f_2$},
+    ylabel={$f_1$},
+    zlabel={$f_3$},
+    xmin=0, xmax=3.5,
+    ymin=0, ymax=3.5,
+    zmin=0, zmax=3.5,
+    width=7cm,
+    height=7cm,
+    axis lines=center,
+    ticks=none,
+    enlargelimits=true
+  ]
+    \addplot3[
+      only marks,
+      mark=*,
+      Blues-I,
+    ] table [x=x, y=y, z=z, col sep=comma] {csv/points_spherical_3D.csv};
+
+    % Approximate positive octant of unit sphere with filled patches
+    \foreach \theta in {0,10,...,80} {
+      \addplot3[
+        fill=Blues-F,
+        opacity=0.5,
+        draw=none
+      ]
+      coordinates {
+        (0,0,0)
+        ({3 * cos(\theta)}, {3 * sin(\theta)}, 0)
+        ({3 * cos(\theta+10)}, {3 * sin(\theta+10)}, 0)
+      };
+    }
+
+    % Same idea: fill along vertical arcs up to z=1
+    \foreach \phi in {0,10,...,80} {
+      \addplot3[
+        fill=Blues-F,
+        opacity=0.5,
+        draw=none
+      ]
+      coordinates {
+        (0,0,0)
+        ({3*cos(0)*cos(\phi)}, {3*sin(0)*cos(\phi)}, {3*sin(\phi)})
+        ({3*cos(0)*cos(\phi+10)}, {3*sin(0)*cos(\phi+10)}, {3*sin(\phi+10)})
+      };
+    }  
+    
+    % Approximate positive octant of unit sphere with filled patches
+    \foreach \theta in {0,10,...,80} {
+      \addplot3[
+        fill=Blues-F,
+        opacity=0.5,
+        draw=none
+      ]
+      coordinates {
+        (0,0,0)
+        (0, {3 * cos(\theta)}, {3 * sin(\theta)})
+        (0, {3 * cos(\theta+10)}, {3 * sin(\theta+10)})
+      };
+    }
+    \end{axis}
+\end{tikzpicture}
